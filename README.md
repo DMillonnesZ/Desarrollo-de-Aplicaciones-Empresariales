@@ -2,7 +2,7 @@
 
 Proyecto desarrollado para el curso **Desarrollo de Aplicaciones Empresariales**.
 
-**Autor:** Bestard Aroche, Yunior
+**Autor:** - Millones Vasquez, Daniel  -Maldonado Linares, Luis
 **Sección:** 4-C24-CD
 
 ---
