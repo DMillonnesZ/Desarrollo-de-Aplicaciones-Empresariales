@@ -3,7 +3,7 @@
 Proyecto desarrollado para el curso **Desarrollo de Aplicaciones Empresariales**.
 
 **Autor:** - Millones Vasquez, Daniel  -Maldonado Linares, Luis
-**Sección:** 4-C24-CD
+**Sección:** 4-C24-D
 
 ---
 
