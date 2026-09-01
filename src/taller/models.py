@@ -125,3 +125,29 @@ def existe_cruce_horario(programacion_atencion, mecanico):
         ):
             return True
     return False
+
+def agregar_cita(datos):
+    """
+    Agrega una nueva cita a la lista en memoria, a partir de los
+    datos limpios (cleaned_data) del formulario.
+    """
+    nueva_cita = {
+        "id": obtener_siguiente_id(),
+        "cliente": {
+            "nombre": datos["nombre_cliente"],
+            "telefono": datos["telefono"],
+            "vehiculo": {
+                "descripcion": datos["descripcion_vehiculo"],
+                "placa": datos["placa"],
+                "servicios": [
+                    {"tipo": datos["tipo_servicio"], "precio": float(datos["precio_servicio"])},
+                ],
+                "mecanico": datos["mecanico"],
+                "estado": datos["estado"],
+                "programacion_atencion": f'{datos["fecha_atencion"]} {datos["hora_atencion"]}',
+                "fecha_entrega": str(datos["fecha_entrega"]),
+            }
+        }
+    }
+    citas.append(nueva_cita)
+    return nueva_cita
