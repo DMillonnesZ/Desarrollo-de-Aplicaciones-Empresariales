@@ -29,25 +29,25 @@
             {% for cita in citas %}
             <tr>
                 <td>{{ cita.id }}</td>
-                <td>{{ cita.cliente.nombre }}</td>
-                <td>{{ cita.cliente.telefono }}</td>
-                <td>{{ cita.cliente.vehiculo.descripcion }}</td>
-                <td>{{ cita.cliente.vehiculo.placa }}</td>
-                <td>{{ cita.cliente.vehiculo.mecanico }}</td>
+                <td>{{ cita.cliente_nombre }}</td>
+                <td>{{ cita.cliente_telefono }}</td>
+                <td>{{ cita.vehiculo_descripcion }}</td>
+                <td>{{ cita.vehiculo_placa }}</td>
+                <td>{{ cita.mecanico }}</td>
                 <td>S/ {{ cita.presupuesto }}</td>
                 <td>
-                    {% if cita.cliente.vehiculo.estado == "En espera" %}
-                        <span class="badge bg-secondary">{{ cita.cliente.vehiculo.estado }}</span>
-                    {% elif cita.cliente.vehiculo.estado == "En proceso" %}
-                        <span class="badge bg-warning text-dark">{{ cita.cliente.vehiculo.estado }}</span>
-                    {% elif cita.cliente.vehiculo.estado == "Terminado" %}
-                        <span class="badge bg-info text-dark">{{ cita.cliente.vehiculo.estado }}</span>
+                    {% if cita.estado == "En espera" %}
+                        <span class="badge bg-secondary">{{ cita.estado }}</span>
+                    {% elif cita.estado == "En proceso" %}
+                        <span class="badge bg-warning text-dark">{{ cita.estado }}</span>
+                    {% elif cita.estado == "Terminado" %}
+                        <span class="badge bg-info text-dark">{{ cita.estado }}</span>
                     {% else %}
-                        <span class="badge bg-success">{{ cita.cliente.vehiculo.estado }}</span>
+                        <span class="badge bg-success">{{ cita.estado }}</span>
                     {% endif %}
                 </td>
-                <td>{{ cita.cliente.vehiculo.programacion_atencion }}</td>
-                <td>{{ cita.cliente.vehiculo.fecha_entrega }}</td>
+                <td>{{ cita.fecha_atencion }} {{ cita.hora_atencion }}</td>
+                <td>{{ cita.fecha_entrega }}</td>
             </tr>
             {% endfor %}
         </tbody>

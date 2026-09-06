@@ -6,11 +6,7 @@ from .forms import CitaForm
 
 def lista_citas(request):
     citas = Cita.objects.all()
-
-    contexto = {
-        "citas": citas
-    }
-
+    contexto = {"citas": citas}
     return render(request, "taller/lista_citas.html", contexto)
 
 
