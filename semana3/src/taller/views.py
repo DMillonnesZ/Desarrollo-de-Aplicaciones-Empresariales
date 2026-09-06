@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Cita
+from .models import Cita, Servicio
 from .forms import CitaForm
 
 
@@ -11,7 +11,11 @@ def lista_citas(request):
         "citas": citas
     }
 
-    return render(request, "taller/lista_citas.html", contexto)
+    return render(
+        request,
+        "taller/lista_citas.html",
+        contexto
+    )
 
 
 def crear_cita(request):
@@ -19,14 +23,44 @@ def crear_cita(request):
         form = CitaForm(request.POST)
 
         if form.is_valid():
-            cita = form.save()
+            datos = form.cleaned_data
 
-            messages.success(
-                request,
-                "Cita registrada correctamente."
-            )
+            # Validación: evitar cruce de citas
+            # (mismo mecánico, misma fecha y hora)
+            cruce = Cita.objects.filter(
+                mecanico=datos["mecanico"],
+                fecha_atencion=datos["fecha_atencion"],
+                hora_atencion=datos["hora_atencion"],
+            ).exists()
 
-            return redirect("lista_citas")
+            if cruce:
+                messages.error(
+                    request,
+                    f'Ya existe una cita programada para '
+                    f'{datos["mecanico"]} el '
+                    f'{datos["fecha_atencion"]} a las '
+                    f'{datos["hora_atencion"]}. '
+                    f'Elige otro horario o mecánico.'
+                )
+
+            else:
+                # Guarda la Cita
+                cita = form.save(commit=False)
+                cita.save()
+
+                # Crea el Servicio asociado
+                Servicio.objects.create(
+                    cita=cita,
+                    tipo=datos["tipo_servicio"],
+                    precio=datos["precio_servicio"],
+                )
+
+                messages.success(
+                    request,
+                    "Cita registrada correctamente."
+                )
+
+                return redirect("lista_citas")
 
     else:
         form = CitaForm()

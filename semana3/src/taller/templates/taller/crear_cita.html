@@ -3,40 +3,48 @@
 {% block title %}Nueva Cita{% endblock %}
 
 {% block content %}
+
 <h2 class="mb-4">Registrar nueva cita</h2>
 
 {% if messages %}
     {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
     {% endfor %}
 {% endif %}
 
 <form method="post">
+
     {% csrf_token %}
+
     <div class="row g-3">
 
         <div class="col-md-6">
-            {{ form.nombre_cliente.label_tag }}
-            {{ form.nombre_cliente }}
-        </div>
-        <div class="col-md-6">
-            {{ form.telefono.label_tag }}
-            {{ form.telefono }}
+            {{ form.cliente_nombre.label_tag }}
+            {{ form.cliente_nombre }}
         </div>
 
         <div class="col-md-6">
-            {{ form.descripcion_vehiculo.label_tag }}
-            {{ form.descripcion_vehiculo }}
+            {{ form.cliente_telefono.label_tag }}
+            {{ form.cliente_telefono }}
         </div>
+
         <div class="col-md-6">
-            {{ form.placa.label_tag }}
-            {{ form.placa }}
+            {{ form.vehiculo_descripcion.label_tag }}
+            {{ form.vehiculo_descripcion }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form.vehiculo_placa.label_tag }}
+            {{ form.vehiculo_placa }}
         </div>
 
         <div class="col-md-8">
             {{ form.tipo_servicio.label_tag }}
             {{ form.tipo_servicio }}
         </div>
+
         <div class="col-md-4">
             {{ form.precio_servicio.label_tag }}
             {{ form.precio_servicio }}
@@ -46,6 +54,7 @@
             {{ form.mecanico.label_tag }}
             {{ form.mecanico }}
         </div>
+
         <div class="col-md-6">
             {{ form.estado.label_tag }}
             {{ form.estado }}
@@ -55,10 +64,12 @@
             {{ form.fecha_atencion.label_tag }}
             {{ form.fecha_atencion }}
         </div>
+
         <div class="col-md-4">
             {{ form.hora_atencion.label_tag }}
             {{ form.hora_atencion }}
         </div>
+
         <div class="col-md-4">
             {{ form.fecha_entrega.label_tag }}
             {{ form.fecha_entrega }}
@@ -67,8 +78,17 @@
     </div>
 
     <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Guardar cita</button>
-        <a href="{% url 'lista_citas' %}" class="btn btn-secondary">Cancelar</a>
+
+        <button type="submit" class="btn btn-primary">
+            Guardar cita
+        </button>
+
+        <a href="{% url 'lista_citas' %}" class="btn btn-secondary">
+            Cancelar
+        </a>
+
     </div>
+
 </form>
+
 {% endblock %}
