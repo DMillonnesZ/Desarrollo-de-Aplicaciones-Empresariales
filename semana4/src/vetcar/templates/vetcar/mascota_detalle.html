@@ -1,0 +1,122 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}{{ mascota.nombre }}{% endblock %}
+{% block contenido %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h2 class="mb-1">{{ mascota.nombre }}</h2>
+        <p class="texto-suave mb-0">
+            <i class="bi bi-tag me-1"></i>{{ mascota.raza.nombre }} ({{ mascota.raza.especie.nombre }})
+            {% if mascota.activo %}
+                <span class="badge-clinica ms-2">Activa</span>
+            {% else %}
+                <span class="badge-clinica-inactivo ms-2">Inactiva</span>
+            {% endif %}
+        </p>
+    </div>
+    <a href="{% url 'editar_mascota' mascota.uuid %}" class="btn-clinica-fantasma">
+        <i class="bi bi-pencil me-1"></i> Editar
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card-clinica p-4 h-100">
+            <h5 class="mb-3"><i class="bi bi-person me-2"></i>Dueño</h5>
+            <p class="mb-1 fw-semibold">{{ mascota.dueno.nombre }}</p>
+            <p class="texto-suave mb-1">DNI {{ mascota.dueno.dni }}</p>
+            <p class="texto-suave mb-0">{{ mascota.dueno.telefono|default:"Sin teléfono" }}</p>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card-clinica p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="bi bi-file-medical me-2"></i>Ficha clínica</h5>
+                <a href="{% url 'gestionar_ficha_clinica' mascota.uuid %}" class="btn-clinica-fantasma btn-sm">
+                    {% if mascota.ficha_clinica %}
+                        <i class="bi bi-pencil me-1"></i> Editar
+                    {% else %}
+                        <i class="bi bi-plus-lg me-1"></i> Agregar ficha clínica
+                    {% endif %}
+                </a>
+            </div>
+            {% if mascota.ficha_clinica %}
+                <div class="row">
+                    <div class="col-sm-6 mb-2">
+                        <span class="texto-suave d-block">Alergias</span>
+                        {{ mascota.ficha_clinica.alergias|default:"Ninguna registrada" }}
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <span class="texto-suave d-block">Condiciones crónicas</span>
+                        {{ mascota.ficha_clinica.condiciones_cronicas|default:"Ninguna registrada" }}
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <span class="texto-suave d-block">Seguro veterinario</span>
+                        {{ mascota.ficha_clinica.seguro_veterinario|default:"—" }}
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <span class="texto-suave d-block">Contacto de emergencia</span>
+                        {{ mascota.ficha_clinica.contacto_emergencia|default:"—" }}
+                    </div>
+                </div>
+            {% else %}
+                <p class="texto-suave mb-0">Esta mascota todavía no tiene ficha clínica registrada.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-clinica p-4 h-100">
+            <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Historial de atenciones</h5>
+            {% for atencion in mascota.atenciones.all %}
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span>
+                    <span class="badge-clinica me-2">{{ atencion.get_tipo_display }}</span>
+                    {{ atencion.fecha|date:"d/m/Y H:i" }}
+                </span>
+            </div>
+            {% empty %}
+            <p class="texto-suave mb-0">Sin atenciones registradas todavía.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Seguimiento clínico: modelo intermedio N:M -->
+    <div class="col-md-6">
+        <div class="card-clinica p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="bi bi-people me-2"></i>Seguimiento clínico</h5>
+                <a href="{% url 'crear_seguimiento' mascota.uuid %}" class="btn-clinica-fantasma btn-sm">
+                    <i class="bi bi-plus-lg me-1"></i> Asignar veterinario
+                </a>
+            </div>
+            {% for seguimiento in mascota.seguimientos.all %}
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span>
+                    <span class="fw-semibold">{{ seguimiento.veterinario.nombre }}</span>
+                    <span class="texto-suave ms-1">— {{ seguimiento.get_rol_display }}</span>
+                </span>
+                <span class="d-flex gap-1">
+                    <a href="{% url 'editar_seguimiento' seguimiento.uuid %}" class="btn-clinica-fantasma btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'eliminar_seguimiento' seguimiento.uuid %}" class="btn-clinica-peligro btn-sm">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </span>
+            </div>
+            {% empty %}
+            <p class="texto-suave mb-0">Sin veterinarios de seguimiento asignados.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'listar_mascotas' %}" class="btn-clinica-fantasma">
+        <i class="bi bi-arrow-left me-1"></i> Volver a la lista
+    </a>
+</div>
+
+{% endblock %}
