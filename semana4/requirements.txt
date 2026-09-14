@@ -1,4 +1,8 @@
 asgiref==3.12.1
 Django==6.1
+django-stubs==6.1.0
+django-stubs-ext==6.1.0
 sqlparse==0.6.0
+types-PyYAML==6.0.12.20260906
+typing_extensions==4.16.0
 tzdata==2026.3
