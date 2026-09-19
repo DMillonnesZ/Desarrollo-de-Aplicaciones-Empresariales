@@ -1,0 +1,28 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}Eliminar veterinario{% endblock %}
+{% block contenido %}
+
+<div class="card-clinica p-4 mx-auto" style="max-width: 520px;">
+    <div class="text-center mb-3">
+        <i class="bi bi-exclamation-triangle" style="font-size: 2.5rem; color: #B4483A;"></i>
+    </div>
+    <h4 class="text-center mb-2">¿Eliminar a {{ veterinario.nombre }}?</h4>
+    <p class="texto-suave text-center mb-4">
+        Esta acción no se puede deshacer.
+        {% if veterinario.atenciones.count %}
+            Este veterinario tiene <strong>{{ veterinario.atenciones.count }}</strong> atención(es) registrada(s) a su nombre; no podrá eliminarse mientras existan.
+        {% endif %}
+    </p>
+
+    <form method="post" class="d-flex justify-content-center gap-2">
+        {% csrf_token %}
+        <button type="submit" class="btn-clinica-peligro">
+            <i class="bi bi-trash me-1"></i> Sí, eliminar
+        </button>
+        <a href="{% url 'listar_veterinarios' %}" class="btn-clinica-fantasma">
+            Cancelar
+        </a>
+    </form>
+</div>
+
+{% endblock %}
