@@ -10,6 +10,7 @@ from .models import (
 class MascotaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'raza', 'dueno', 'sexo', 'activo')
     search_fields = ('nombre', 'dueno__nombre', 'dueno__dni')
+    list_filter = ('activo', 'sexo', 'raza__especie')
 
 
 @admin.register(Veterinario)
