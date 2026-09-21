@@ -6,11 +6,19 @@ from .models import (
 )
 
 
+class FichaClinicaInline(admin.StackedInline):
+    model = FichaClinica
+    can_delete = False
+    extra = 1
+    max_num = 1
+
+
 @admin.register(Mascota)
 class MascotaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'raza', 'dueno', 'sexo', 'activo')
     search_fields = ('nombre', 'dueno__nombre', 'dueno__dni')
     list_filter = ('activo', 'sexo', 'raza__especie')
+    inlines = [FichaClinicaInline]
 
 
 @admin.register(Veterinario)
