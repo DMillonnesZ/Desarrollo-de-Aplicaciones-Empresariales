@@ -1,6 +1,6 @@
 # VetCar — Sistema de gestión para clínica veterinaria
 
-Aplicación web desarrollada con **Django** para el curso *Desarrollo de Aplicaciones Empresariales* (Ciclo 2026-II). Parte del modelo de datos investigado en la Semana 3 (Dueño, Raza, Veterinario, Mascota, Consulta) y lo amplía incorporando relaciones 1:1, 1:N y N:M, generalización/especialización, auditoría automática e identificadores no secuenciales.
+Aplicación web desarrollada con **Django** para el curso *Desarrollo de Aplicaciones Empresariales* (Ciclo 2026-II). Parte del modelo de datos investigado en la Semana 3 (Dueño, Raza, Veterinario, Mascota, Consulta) y lo amplía incorporando relaciones 1:1, 1:N y N:M, generalización/especialización, auditoría automática, identificadores no secuenciales, y administración completa desde el Django Admin.
 
 ## Índice
 
@@ -13,7 +13,9 @@ Aplicación web desarrollada con **Django** para el curso *Desarrollo de Aplicac
 - [Generalización y especialización](#generalización-y-especialización)
 - [Reglas de negocio y auditoría automática](#reglas-de-negocio-y-auditoría-automática)
 - [Identificadores UUID](#identificadores-uuid)
+- [Django Admin](#django-admin)
 - [Instalación](#instalación)
+- [Rutas principales](#rutas-principales)
 - [Funcionamiento](#funcionamiento)
 
 ## Stack técnico
@@ -22,6 +24,7 @@ Aplicación web desarrollada con **Django** para el curso *Desarrollo de Aplicac
 - **Base de datos:** SQLite
 - **Frontend:** Bootstrap 5 + Bootstrap Icons, paleta y componentes de botón propios
 - **Identificadores:** UUID en lugar del `id` autoincremental en toda URL pública
+- **Administración:** Django Admin personalizado con `ModelAdmin`, `StackedInline` y `TabularInline`
 
 ## Modelo de datos completo
 
@@ -139,10 +142,39 @@ uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
 Esto evita que alguien pueda enumerar registros secuencialmente (`/mascotas/1/`, `/mascotas/2/`...) — el `id` interno sigue existiendo para las relaciones (`ForeignKey`), pero nunca viaja hacia el cliente.
 
+## Django Admin
+
+Las 16 entidades del modelo están registradas en `admin.py`. De ellas, **8 tienen `ModelAdmin` personalizado** y **2 relaciones se editan mediante Inlines** directamente desde la pantalla de su entidad principal, sin navegar a una pantalla aparte.
+
+### ModelAdmin personalizados
+
+| Modelo | `list_display` | `search_fields` | `list_filter` |
+|---|---|---|---|
+| `Mascota` | nombre, raza, dueno, sexo, activo | nombre, dueno\_\_nombre, dueno\_\_dni | activo, sexo, raza\_\_especie |
+| `Veterinario` | nombre, colegiatura, fecha_ingreso, activo | — | activo |
+| `Consulta` | mascota, veterinario, fecha, estado, costo | mascota\_\_nombre, motivo | estado |
+| `Dueno` | nombre, dni, telefono, activo | nombre, dni | activo |
+| `Raza` | nombre, especie | nombre | especie |
+| `Vacunacion` | mascota, veterinario, nombre_vacuna, fecha, proxima_dosis | mascota\_\_nombre, nombre_vacuna | nombre_vacuna |
+| `Medicamento` | nombre, stock, precio_unitario | nombre | — |
+| `AuditoriaAtencion` | atencion_id, tipo, mascota_nombre, accion, fecha_accion | mascota_nombre, dueno_nombre, dueno_dni | accion, tipo |
+
+Los campos con doble guion bajo (por ejemplo `dueno__nombre` o `raza__especie`) atraviesan una `ForeignKey`: permiten buscar o filtrar por un dato que vive en el modelo relacionado, no en el propio.
+
+### Inlines (relaciones editables desde una sola pantalla)
+
+- **`FichaClinicaInline`** (`StackedInline`, con `max_num=1` y `can_delete=False`) dentro de `MascotaAdmin` — expone la relación 1:1, mostrando los campos apilados verticalmente (apropiado para textos largos como alergias u observaciones).
+- **`SeguimientoClinicoInline`** (`TabularInline`) dentro de `MascotaAdmin` — expone el modelo intermedio de la relación N:M `Mascota`↔`Veterinario`, con `veterinario`, `fecha_asignacion`, `rol` y `activo` como columnas editables.
+- **`DetalleRecetaInline`** (`TabularInline`) dentro de `ConsultaAdmin` — expone el segundo modelo intermedio N:M, `Consulta`↔`Medicamento`, con `medicamento`, `cantidad`, `dosis` e `indicaciones` como columnas editables.
+
+### Qué resuelve el Admin y qué sigue necesitando una View/Template propios
+
+El Django Admin resuelve por completo la gestión interna de esta investigación, ya que permite crear, editar y eliminar cualquier entidad y sus relaciones (incluidas la relación 1:1 y las dos relaciones N:M mediante Inlines) sin necesidad de escribir HTML ni vistas manuales, generando automáticamente los formularios, las validaciones del modelo y las tablas de listado a partir de los `Model` ya definidos en la Semana 4. Sin embargo, el Admin está diseñado para uso interno de administradores del sistema y no para el usuario final, por lo que no permite personalizar el diseño visual de la interfaz, no puede aplicar reglas de negocio específicas del dominio como forzar que una `Consulta` solo se anule en vez de eliminarse físicamente, y tampoco ofrece URLs amigables ni una experiencia adaptada al flujo de trabajo real de quien usará el sistema en la práctica. Por esas razones, siguen siendo necesarias las Views y los Templates propios (las que se armaron con Bootstrap para `Dueno`, `Mascota`, `Consulta`, etc.), que son las que finalmente controlan qué ve cada usuario, cómo se presenta esa información y qué acciones concretas puede realizar dentro del sistema.
+
 ## Instalación
 
 ```bash
-git clone <https://github.com/DMillonnesZ/Desarrollo-de-Aplicaciones-Empresariales.git>
+git clone https://github.com/DMillonnesZ/Desarrollo-de-Aplicaciones-Empresariales.git
 cd semana4/src
 python -m venv venv
 venv\Scripts\activate          # Windows
@@ -166,7 +198,7 @@ La app `vetcar` está montada bajo el prefijo `/vetcar/` en el `urls.py` del pro
 | Consultas | `/vetcar/consultas/` | `/vetcar/consultas/nueva/` | — |
 | Vacunaciones | `/vetcar/vacunaciones/` | `/vetcar/vacunaciones/nueva/` | — |
 
-**Gestión de relaciones (siempre anidadas bajo una mascota o consulta concreta):**
+**Gestión de relaciones (siempre anidadas bajo una mascota o consulta concreta, desde las Views propias):**
 
 | Acción | Ruta |
 |---|---|
@@ -191,6 +223,18 @@ La app `vetcar` está montada bajo el prefijo `/vetcar/` en el `urls.py` del pro
 
 **Panel de administración con los catálogos cargados**
 ![Panel de administración](screenshots/panel_admin.png)
+
+**Listado de Mascota con `list_display` personalizado**
+![Admin: list_display](screenshots/admin_list_display.png)
+
+**Búsqueda funcionando (`search_fields`)**
+![Admin: búsqueda](screenshots/admin_busqueda.png)
+
+**Panel de filtros funcionando (`list_filter`)**
+![Admin: filtros](screenshots/admin_filtros.png)
+
+**Ficha clínica y seguimiento clínico editados como Inline dentro de Mascota**
+![Admin: Inlines](screenshots/admin_inlines.png)
 
 ---
 
