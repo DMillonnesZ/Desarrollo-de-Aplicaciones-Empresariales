@@ -161,7 +161,7 @@ def veterinario_detalle(request, uuid):
 # ============================================================
 
 def listar_razas(request):
-    razas = Raza.objects.select_related('especie').all()
+    razas = Raza.objects.select_related('especie').prefetch_related('mascotas')
 
     return render(request, 'vetcar/raza_list.html', {'razas': razas})
 
