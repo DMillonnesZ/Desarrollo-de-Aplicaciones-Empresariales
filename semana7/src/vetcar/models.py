@@ -46,7 +46,7 @@ class Especie(models.Model):
         verbose_name_plural = 'Especies'
 
     def __str__(self):
-        return self.nombreE
+        return self.nombre
 
 
 class Persona(models.Model):
@@ -114,6 +114,9 @@ class Veterinario(Persona):
     fecha_ingreso = models.DateField(
         validators=[validar_fecha_no_futura]
     )
+
+    # Ejercicio 9: campo entero que se descuenta con F() al agendar consultas.
+    cupos_disponibles = models.PositiveIntegerField(default=10)
 
     class Meta:
         ordering = ['nombre']
@@ -436,7 +439,7 @@ class SeguimientoClinico(models.Model):
         default=uuid_lib.uuid4, editable=False, unique=True
     )
     mascota = models.ForeignKey(
-        Mascota, on_delete=models.PROTECT, related_name='seguimientos'
+        Mascota, on_delete=models.CASCADE, related_name='seguimientos'
     )
     veterinario = models.ForeignKey(
         Veterinario,

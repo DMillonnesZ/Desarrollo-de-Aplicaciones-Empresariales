@@ -33,7 +33,10 @@ class MascotaAdmin(admin.ModelAdmin):
 
 @admin.register(Veterinario)
 class VeterinarioAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'colegiatura', 'fecha_ingreso', 'activo')
+    list_display = (
+        'nombre', 'colegiatura', 'fecha_ingreso',
+        'cupos_disponibles', 'activo',
+    )
     list_filter = ('activo',)
 
 
