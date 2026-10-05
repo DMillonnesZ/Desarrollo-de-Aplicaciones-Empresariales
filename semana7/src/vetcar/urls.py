@@ -31,6 +31,10 @@ urlpatterns = [
     # Consulta
     path('consultas/', views.listar_consultas, name='listar_consultas'),
     path('consultas/nueva/', views.crear_consulta, name='crear_consulta'),
+
+    # Ejercicio 10: agendar consulta con transacción y descuento de cupos
+    path('consultas/agendar/', views.agendar_consulta, name='agendar_consulta'),
+
     path('consultas/<uuid:uuid>/editar/', views.editar_consulta, name='editar_consulta'),
     path('consultas/<uuid:uuid>/anular/', views.anular_consulta, name='anular_consulta'),
 

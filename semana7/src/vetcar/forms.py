@@ -177,3 +177,16 @@ class RegistrarRecetaForm(forms.Form):
                 if isinstance(campo.widget, forms.Select)
                 else 'form-control'
             )
+
+
+# ============================================================
+# EJERCICIO 10: FORMULARIO PARA AGENDAR CONSULTAS
+# ============================================================
+
+class AgendarConsultaForm(ClinicaModelForm):
+    class Meta:
+        model = Consulta
+        fields = ['mascota', 'veterinario', 'fecha', 'motivo', 'costo']
+        widgets = {
+            'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }

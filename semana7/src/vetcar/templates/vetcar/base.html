@@ -223,6 +223,14 @@
                             Vacunaciones
                         </a>
                     </li>
+
+                    <!-- Ejercicio 10: agendar consultas -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'agendar_consulta' %}">
+                            Agendar
+                        </a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'reporte' %}">
                             Reporte
@@ -235,7 +243,7 @@
 
     <div class="container pb-5">
 
-        {# Ejercicio 3: mostrar mensajes después de la redirección. #}
+        {# Mostrar mensajes después de la redirección. #}
         {% if messages %}
             {% for m in messages %}
                 <div class="alert {% if m.level == DEFAULT_MESSAGE_LEVELS.ERROR %}alert-danger{% elif m.level == DEFAULT_MESSAGE_LEVELS.WARNING %}alert-warning{% elif m.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}alert-success{% else %}alert-info{% endif %}"

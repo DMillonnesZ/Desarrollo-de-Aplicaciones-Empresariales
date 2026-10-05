@@ -12,7 +12,7 @@ from .forms import (
     DuenoForm, VeterinarioForm, RazaForm, MascotaForm,
     ConsultaForm, VacunacionForm, FichaClinicaForm,
     SeguimientoClinicoForm, DetalleRecetaForm,
-    RegistrarRecetaForm,
+    RegistrarRecetaForm, AgendarConsultaForm,
 )
 
 
@@ -709,4 +709,64 @@ def reporte(request):
             'por_estado': por_estado,
             'atendidas_mes': atendidas_mes,
         },
+    )
+
+
+# ============================================================
+# EJERCICIO 10 — AGENDAR CONSULTA CON ATOMIC Y F
+# ============================================================
+
+class SinCuposError(Exception):
+    """Permite revertir la operación cuando el veterinario no tiene cupos."""
+
+    pass
+
+
+def agendar_consulta(request):
+    error = None
+
+    if request.method == 'POST':
+        form = AgendarConsultaForm(request.POST)
+
+        if form.is_valid():
+            vet = form.cleaned_data['veterinario']
+
+            try:
+                with transaction.atomic():
+                    # 1. Crear la consulta en estado pendiente.
+                    consulta = form.save(commit=False)
+                    consulta.estado = 'PENDIENTE'
+
+                    # La señal post_save crea la auditoría dentro de la transacción.
+                    consulta.save()
+
+                    # 2. Descontar un cupo únicamente si quedan disponibles.
+                    actualizados = Veterinario.objects.filter(
+                        pk=vet.pk,
+                        cupos_disponibles__gt=0,
+                    ).update(
+                        cupos_disponibles=F('cupos_disponibles') - 1,
+                    )
+
+                    # 3. Sin cupos, revertir también la consulta y su auditoría.
+                    if actualizados == 0:
+                        raise SinCuposError(
+                            f'{vet.nombre} no tiene cupos disponibles.'
+                        )
+
+            # Capturar el error después de salir del bloque atomic.
+            except SinCuposError as exc:
+                error = str(exc)
+
+            else:
+                messages.success(request, 'Consulta agendada correctamente.')
+                return redirect('listar_consultas')
+
+    else:
+        form = AgendarConsultaForm()
+
+    return render(
+        request,
+        'vetcar/agendar_consulta.html',
+        {'form': form, 'error': error},
     )
