@@ -180,7 +180,7 @@ class RegistrarRecetaForm(forms.Form):
 
 
 # ============================================================
-# EJERCICIO 10: FORMULARIO PARA AGENDAR CONSULTAS
+# EJERCICIOS 10 Y 12: FORMULARIO PARA AGENDAR CONSULTAS
 # ============================================================
 
 class AgendarConsultaForm(ClinicaModelForm):
@@ -190,3 +190,9 @@ class AgendarConsultaForm(ClinicaModelForm):
         widgets = {
             'fecha': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Usa el QuerySet personalizado: solo veterinarios activos.
+        # No se filtra con_cupos() a proposito, para poder probar el rollback.
+        self.fields['veterinario'].queryset = Veterinario.objects.activos().order_by('nombre')  # type: ignore[attr-defined]

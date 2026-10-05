@@ -102,6 +102,16 @@ class Especialidad(models.Model):
         return self.nombre
 
 
+class VeterinarioQuerySet(models.QuerySet):
+    """Reglas de negocio encadenables para Veterinario (Ejercicio 12)."""
+
+    def activos(self):
+        return self.filter(activo=True)
+
+    def con_cupos(self):
+        return self.filter(cupos_disponibles__gt=0)
+
+
 class Veterinario(Persona):
     colegiatura = models.CharField(
         max_length=20,
@@ -117,6 +127,8 @@ class Veterinario(Persona):
 
     # Ejercicio 9: campo entero que se descuenta con F() al agendar consultas.
     cupos_disponibles = models.PositiveIntegerField(default=10)
+
+    objects = VeterinarioQuerySet.as_manager()
 
     class Meta:
         ordering = ['nombre']

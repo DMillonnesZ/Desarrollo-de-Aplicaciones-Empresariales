@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction, IntegrityError
-from django.db.models import F, Sum, Count, DecimalField
+from django.db.models import Avg, F, Sum, Count, DecimalField
 
 from .models import (
     Dueno, Veterinario, Raza, Mascota, Consulta, Vacunacion,
@@ -81,15 +81,13 @@ def eliminar_dueno(request, uuid):
 # ============================================================
 
 def listar_veterinarios(request):
-    veterinarios = Veterinario.objects.prefetch_related(
-        'especialidades'
-    ).all()
-
-    return render(
-        request,
-        'vetcar/veterinario_list.html',
-        {'veterinarios': veterinarios},
-    )
+    # Ejercicio 12: metodos encadenables del QuerySet personalizado
+    veterinarios = Veterinario.objects.prefetch_related('especialidades')
+    if request.GET.get('activos') == '1':
+        veterinarios = veterinarios.activos()
+    if request.GET.get('cupos') == '1':
+        veterinarios = veterinarios.con_cupos()
+    return render(request, 'vetcar/veterinario_list.html', {'veterinarios': veterinarios})
 
 
 def crear_veterinario(request):
@@ -673,43 +671,40 @@ def registrar_receta(request, consulta_uuid):
 
 
 # ============================================================
-# EJERCICIO 6 — REPORTE CON AGGREGATE Y ANNOTATE
+# EJERCICIOS 6, 7 Y 11 — REPORTE CON AGGREGATE Y ANNOTATE
 # ============================================================
 
 def reporte(request):
+    # Parte 1
     totales = DetalleReceta.objects.aggregate(
         total_unidades=Sum('cantidad'),
         total_valorizado=Sum(
             F('cantidad') * F('medicamento__precio_unitario'),
-            output_field=DecimalField(
-                max_digits=12,
-                decimal_places=2,
-            ),
-        ),
+            output_field=DecimalField(max_digits=12, decimal_places=2)),
     )
-
     por_mascota = Mascota.objects.annotate(
-        num_atenciones=Count('atenciones'),
-    ).order_by('-num_atenciones')
-
+        num_atenciones=Count('atenciones')).order_by('-num_atenciones')
     por_estado = Consulta.objects.values('estado').annotate(
-        total=Count('id'),
-        ingresos=Sum('costo'),
-    ).order_by('-total')
-
-    # Ejercicio 7: reutilización del QuerySet en una segunda vista.
+        total=Count('id'), ingresos=Sum('costo')).order_by('-total')
     atendidas_mes = Consulta.objects.atendidas().del_mes_actual().count()
 
-    return render(
-        request,
-        'vetcar/reporte.html',
-        {
-            'totales': totales,
-            'por_mascota': por_mascota,
-            'por_estado': por_estado,
-            'atendidas_mes': atendidas_mes,
-        },
-    )
+    # Parte 2
+    cupos = Veterinario.objects.aggregate(
+        total_cupos=Sum('cupos_disponibles'), promedio=Avg('cupos_disponibles'))
+    por_veterinario = Veterinario.objects.annotate(
+        num_consultas=Count('atenciones')).order_by('-num_consultas')
+    ingresos_vet = Consulta.objects.values('veterinario__nombre').annotate(
+        total=Count('id'), ingresos=Sum('costo')).order_by('-ingresos')
+
+    return render(request, 'vetcar/reporte.html', {
+        'totales': totales,
+        'por_mascota': por_mascota,
+        'por_estado': por_estado,
+        'atendidas_mes': atendidas_mes,
+        'cupos': cupos,
+        'por_veterinario': por_veterinario,
+        'ingresos_vet': ingresos_vet,
+    })
 
 
 # ============================================================
