@@ -1,0 +1,11 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}Eliminar{% endblock %}
+{% block contenido %}
+<h1>Confirmar eliminación</h1>
+<p>¿Está seguro de eliminar el registro <strong>{{ obj }}</strong> de {{ titulo }}?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a class="btn btn-gray" href="{% url 'vetcar:listar' entidad %}">Cancelar</a>
+</form>
+{% endblock %}

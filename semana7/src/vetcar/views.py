@@ -299,10 +299,16 @@ def mascota_detalle(request, uuid):
 # ============================================================
 
 def listar_consultas(request):
-    consultas = Consulta.objects.select_related(
-        'mascota',
-        'veterinario',
-    ).all()
+    # Ejercicio 7: métodos del QuerySet personalizado.
+    consultas = Consulta.objects.select_related('mascota', 'veterinario')
+    filtro = request.GET.get('filtro')
+
+    if filtro == 'pendientes':
+        consultas = consultas.pendientes()
+    elif filtro == 'mes':
+        consultas = consultas.del_mes_actual()
+    elif filtro == 'atendidas_mes':
+        consultas = consultas.atendidas().del_mes_actual()
 
     return render(
         request,
@@ -691,6 +697,9 @@ def reporte(request):
         ingresos=Sum('costo'),
     ).order_by('-total')
 
+    # Ejercicio 7: reutilización del QuerySet en una segunda vista.
+    atendidas_mes = Consulta.objects.atendidas().del_mes_actual().count()
+
     return render(
         request,
         'vetcar/reporte.html',
@@ -698,5 +707,6 @@ def reporte(request):
             'totales': totales,
             'por_mascota': por_mascota,
             'por_estado': por_estado,
+            'atendidas_mes': atendidas_mes,
         },
     )

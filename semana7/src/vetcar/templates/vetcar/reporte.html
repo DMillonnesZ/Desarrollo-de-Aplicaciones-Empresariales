@@ -30,6 +30,11 @@
         Valor total recetado: S/
         <strong>{{ totales.total_valorizado|default:0|floatformat:2 }}</strong>
     </p>
+
+    <p class="mb-0">
+        Consultas atendidas este mes:
+        <strong>{{ atendidas_mes }}</strong>
+    </p>
 </div>
 
 <div class="card-clinica p-4 mb-4">

@@ -46,7 +46,7 @@ class Especie(models.Model):
         verbose_name_plural = 'Especies'
 
     def __str__(self):
-        return self.nombre
+        return self.nombreE
 
 
 class Persona(models.Model):
@@ -265,6 +265,20 @@ class Atencion(models.Model):
         )
 
 
+class ConsultaQuerySet(models.QuerySet):
+    """Reglas de negocio encadenables para Consulta (Ejercicio 7)."""
+
+    def pendientes(self):
+        return self.filter(estado='PENDIENTE')
+
+    def atendidas(self):
+        return self.filter(estado='ATENDIDA')
+
+    def del_mes_actual(self):
+        hoy = timezone.now()
+        return self.filter(fecha__year=hoy.year, fecha__month=hoy.month)
+
+
 class Consulta(Atencion):
     # Relación N:M utilizando el modelo intermedio existente.
     medicamentos = models.ManyToManyField(
@@ -289,6 +303,8 @@ class Consulta(Atencion):
         decimal_places=2,
         validators=[MinValueValidator(0)],
     )
+
+    objects = ConsultaQuerySet.as_manager()
 
     class Meta:
         ordering = ['-fecha']
@@ -420,7 +436,7 @@ class SeguimientoClinico(models.Model):
         default=uuid_lib.uuid4, editable=False, unique=True
     )
     mascota = models.ForeignKey(
-        Mascota, on_delete=models.CASCADE, related_name='seguimientos'
+        Mascota, on_delete=models.PROTECT, related_name='seguimientos'
     )
     veterinario = models.ForeignKey(
         Veterinario,
