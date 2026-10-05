@@ -21,7 +21,7 @@ from .forms import (
 # ============================================================
 
 def listar_duenos(request):
-    duenos = Dueno.objects.all()
+    duenos = Dueno.objects.prefetch_related('mascotas')
 
     return render(
         request,
