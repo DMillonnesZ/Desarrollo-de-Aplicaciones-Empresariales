@@ -82,4 +82,11 @@ urlpatterns = [
         views.registrar_receta,
         name='registrar_receta',
     ),
+
+    # Ejercicio 6: reporte con aggregate y annotate
+    path(
+        'reporte/',
+        views.reporte,
+        name='reporte',
+    ),
 ]

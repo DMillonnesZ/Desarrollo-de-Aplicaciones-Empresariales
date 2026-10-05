@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction, IntegrityError
-from django.db.models import F
+from django.db.models import F, Sum, Count, DecimalField
 
 from .models import (
     Dueno, Veterinario, Raza, Mascota, Consulta, Vacunacion,
@@ -22,6 +22,7 @@ from .forms import (
 
 def listar_duenos(request):
     duenos = Dueno.objects.all()
+
     return render(
         request,
         'vetcar/dueno_list.html',
@@ -32,6 +33,7 @@ def listar_duenos(request):
 def crear_dueno(request):
     if request.method == 'POST':
         form = DuenoForm(request.POST)
+
         if form.is_valid():
             form.save()
             return redirect('listar_duenos')
@@ -46,6 +48,7 @@ def editar_dueno(request, uuid):
 
     if request.method == 'POST':
         form = DuenoForm(request.POST, instance=dueno)
+
         if form.is_valid():
             form.save()
             return redirect('listar_duenos')
@@ -92,6 +95,7 @@ def listar_veterinarios(request):
 def crear_veterinario(request):
     if request.method == 'POST':
         form = VeterinarioForm(request.POST)
+
         if form.is_valid():
             form.save()
             return redirect('listar_veterinarios')
@@ -110,6 +114,7 @@ def editar_veterinario(request, uuid):
 
     if request.method == 'POST':
         form = VeterinarioForm(request.POST, instance=veterinario)
+
         if form.is_valid():
             form.save()
             return redirect('listar_veterinarios')
@@ -159,12 +164,14 @@ def veterinario_detalle(request, uuid):
 
 def listar_razas(request):
     razas = Raza.objects.select_related('especie').all()
+
     return render(request, 'vetcar/raza_list.html', {'razas': razas})
 
 
 def crear_raza(request):
     if request.method == 'POST':
         form = RazaForm(request.POST)
+
         if form.is_valid():
             form.save()
             return redirect('listar_razas')
@@ -179,6 +186,7 @@ def editar_raza(request, uuid):
 
     if request.method == 'POST':
         form = RazaForm(request.POST, instance=raza)
+
         if form.is_valid():
             form.save()
             return redirect('listar_razas')
@@ -223,6 +231,7 @@ def listar_mascotas(request):
 def crear_mascota(request):
     if request.method == 'POST':
         form = MascotaForm(request.POST)
+
         if form.is_valid():
             form.save()
             return redirect('listar_mascotas')
@@ -237,6 +246,7 @@ def editar_mascota(request, uuid):
 
     if request.method == 'POST':
         form = MascotaForm(request.POST, instance=mascota)
+
         if form.is_valid():
             form.save()
             return redirect('listar_mascotas')
@@ -304,6 +314,7 @@ def listar_consultas(request):
 def crear_consulta(request):
     if request.method == 'POST':
         form = ConsultaForm(request.POST)
+
         if form.is_valid():
             form.save()
             return redirect('listar_consultas')
@@ -318,6 +329,7 @@ def editar_consulta(request, uuid):
 
     if request.method == 'POST':
         form = ConsultaForm(request.POST, instance=consulta)
+
         if form.is_valid():
             form.save()
             return redirect('listar_consultas')
@@ -368,6 +380,7 @@ def listar_vacunaciones(request):
 def crear_vacunacion(request):
     if request.method == 'POST':
         form = VacunacionForm(request.POST)
+
         if form.is_valid():
             form.save()
             return redirect('listar_vacunaciones')
@@ -386,6 +399,7 @@ def editar_vacunacion(request, uuid):
 
     if request.method == 'POST':
         form = VacunacionForm(request.POST, instance=vacunacion)
+
         if form.is_valid():
             form.save()
             return redirect('listar_vacunaciones')
@@ -551,6 +565,7 @@ def eliminar_detalle_receta(request, uuid):
 
 class StockInsuficienteError(Exception):
     """Permite cancelar toda la operación cuando falta stock."""
+
     pass
 
 
@@ -647,5 +662,41 @@ def registrar_receta(request, consulta_uuid):
             'form': form,
             'consulta': consulta,
             'error': error,
+        },
+    )
+
+
+# ============================================================
+# EJERCICIO 6 — REPORTE CON AGGREGATE Y ANNOTATE
+# ============================================================
+
+def reporte(request):
+    totales = DetalleReceta.objects.aggregate(
+        total_unidades=Sum('cantidad'),
+        total_valorizado=Sum(
+            F('cantidad') * F('medicamento__precio_unitario'),
+            output_field=DecimalField(
+                max_digits=12,
+                decimal_places=2,
+            ),
+        ),
+    )
+
+    por_mascota = Mascota.objects.annotate(
+        num_atenciones=Count('atenciones'),
+    ).order_by('-num_atenciones')
+
+    por_estado = Consulta.objects.values('estado').annotate(
+        total=Count('id'),
+        ingresos=Sum('costo'),
+    ).order_by('-total')
+
+    return render(
+        request,
+        'vetcar/reporte.html',
+        {
+            'totales': totales,
+            'por_mascota': por_mascota,
+            'por_estado': por_estado,
         },
     )

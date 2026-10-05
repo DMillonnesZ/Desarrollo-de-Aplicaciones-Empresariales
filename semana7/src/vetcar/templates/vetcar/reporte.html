@@ -1,0 +1,101 @@
+{% extends 'vetcar/base.html' %}
+
+{% block titulo %}Reporte{% endblock %}
+
+{% block contenido %}
+
+<div class="mb-4">
+    <h2 class="mb-0">
+        <i class="bi bi-bar-chart-line me-2"
+           style="color: var(--clinica-primaria);"></i>
+        Reporte clínico
+    </h2>
+    <p class="texto-suave mb-0">
+        Consultas avanzadas del ORM: aggregate() y annotate()
+    </p>
+</div>
+
+<div class="card-clinica p-4 mb-4">
+    <h5>
+        Totales de recetas
+        <span class="texto-suave small">(aggregate)</span>
+    </h5>
+
+    <p class="mb-1">
+        Unidades recetadas:
+        <strong>{{ totales.total_unidades|default:0 }}</strong>
+    </p>
+
+    <p class="mb-0">
+        Valor total recetado: S/
+        <strong>{{ totales.total_valorizado|default:0|floatformat:2 }}</strong>
+    </p>
+</div>
+
+<div class="card-clinica p-4 mb-4">
+    <h5>
+        Consultas por estado
+        <span class="texto-suave small">(values + annotate)</span>
+    </h5>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr class="texto-suave">
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th>Ingresos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in por_estado %}
+                    <tr>
+                        <td>{{ r.estado }}</td>
+                        <td>{{ r.total }}</td>
+                        <td>S/ {{ r.ingresos|default:0|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="texto-suave">
+                            Sin datos.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card-clinica p-4">
+    <h5>
+        Atenciones por mascota
+        <span class="texto-suave small">(annotate + Count)</span>
+    </h5>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr class="texto-suave">
+                    <th>Mascota</th>
+                    <th>Atenciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in por_mascota %}
+                    <tr>
+                        <td>{{ m.nombre }}</td>
+                        <td>{{ m.num_atenciones }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2" class="texto-suave">
+                            Sin datos.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
