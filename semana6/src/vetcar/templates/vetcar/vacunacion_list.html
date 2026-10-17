@@ -1,19 +1,26 @@
 {% extends 'vetcar/base.html' %}
+{# Listado de vacunaciones: historial de vacunas aplicadas con fechas, próxima dosis y acciones. #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Vacunaciones{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado de la sección: título, descripción y botón para registrar una nueva vacunación #}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">Vacunaciones</h2>
         <p class="texto-suave mb-0">Historial de vacunas aplicadas</p>
     </div>
+    {# Botón que lleva al formulario de creación de un nuevo registro #}
     <a href="{% url 'crear_vacunacion' %}" class="btn-clinica-acento">
         <i class="bi bi-plus-lg me-1"></i> Nueva vacunación
     </a>
 </div>
 
+{# Tarjeta sin relleno que envuelve la tabla #}
 <div class="card-clinica p-0">
     <table class="table align-middle mb-0">
+        {# Encabezados de las columnas de la tabla #}
         <thead>
             <tr class="texto-suave">
                 <th class="ps-4 py-3">Mascota</th>
@@ -25,15 +32,21 @@
             </tr>
         </thead>
         <tbody>
+            {# Recorre las vacunaciones que envía la vista (variable vacunaciones) y genera una fila por cada una #}
             {% for vacunacion in vacunaciones %}
             <tr>
+                {# Nombre de la mascota vacunada #}
                 <td class="ps-4 fw-semibold">{{ vacunacion.mascota.nombre }}</td>
                 <td>
+                    {# Etiqueta con el nombre de la vacuna aplicada #}
                     <span class="badge-clinica"><i class="bi bi-shield-plus me-1"></i>{{ vacunacion.nombre_vacuna }}</span>
                 </td>
+                {# Veterinario que aplicó la vacuna #}
                 <td class="texto-suave">{{ vacunacion.veterinario.nombre }}</td>
+                {# Fecha y hora en que se aplicó la vacuna #}
                 <td class="texto-suave">{{ vacunacion.fecha|date:"d/m/Y H:i" }}</td>
                 <td class="texto-suave">
+                    {# Fecha de la próxima dosis; si no se programó ninguna muestra un guion #}
                     {% if vacunacion.proxima_dosis %}
                         {{ vacunacion.proxima_dosis|date:"d/m/Y" }}
                     {% else %}
@@ -41,9 +54,11 @@
                     {% endif %}
                 </td>
                 <td class="pe-4 text-end">
+                    {# Botón para editar la vacunación (se identifica por su uuid) #}
                     <a href="{% url 'editar_vacunacion' vacunacion.uuid %}" class="btn-clinica-fantasma btn-sm">
                         <i class="bi bi-pencil"></i>
                     </a>
+                    {# Botón que lleva a la confirmación para eliminar la vacunación #}
                     <a href="{% url 'eliminar_vacunacion' vacunacion.uuid %}" class="btn-clinica-peligro btn-sm">
                         <i class="bi bi-trash"></i>
                     </a>
@@ -51,6 +66,7 @@
             </tr>
             {% empty %}
             <tr>
+                {# Fila que se muestra cuando no hay vacunaciones (cláusula empty del bucle); ocupa las 6 columnas #}
                 <td colspan="6" class="text-center py-5 texto-suave">
                     <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                     No hay vacunaciones registradas todavía.
@@ -61,4 +77,5 @@
     </table>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

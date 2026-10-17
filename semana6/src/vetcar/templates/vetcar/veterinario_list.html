@@ -1,19 +1,26 @@
 {% extends 'vetcar/base.html' %}
+{# Listado de veterinarios: tabla con nombre, colegiatura, especialidades, estado y acciones. #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Veterinarios{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado de la sección: título, descripción y botón para registrar un nuevo veterinario #}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">Veterinarios</h2>
         <p class="texto-suave mb-0">Personal médico de la clínica</p>
     </div>
+    {# Botón que lleva al formulario de creación de un nuevo registro #}
     <a href="{% url 'crear_veterinario' %}" class="btn-clinica-acento">
         <i class="bi bi-plus-lg me-1"></i> Nuevo veterinario
     </a>
 </div>
 
+{# Tarjeta sin relleno que envuelve la tabla #}
 <div class="card-clinica p-0">
     <table class="table align-middle mb-0">
+        {# Encabezados de las columnas de la tabla #}
         <thead>
             <tr class="texto-suave">
                 <th class="ps-4 py-3">Nombre</th>
@@ -24,15 +31,19 @@
             </tr>
         </thead>
         <tbody>
+            {# Recorre los veterinarios que envía la vista (variable veterinarios) y genera una fila por cada uno #}
             {% for veterinario in veterinarios %}
             <tr>
                 <td class="ps-4">
+                    {# Nombre del veterinario como enlace a su página de detalle #}
                     <a href="{% url 'veterinario_detalle' veterinario.uuid %}" class="fw-semibold text-decoration-none" style="color: var(--clinica-texto);">
                         {{ veterinario.nombre }}
                     </a>
                 </td>
+                {# Número de colegiatura profesional #}
                 <td class="texto-suave">{{ veterinario.colegiatura }}</td>
                 <td>
+                    {# Recorre las especialidades del veterinario (relación muchos a muchos) y las muestra como etiquetas; si no tiene, la cláusula empty muestra un guion #}
                     {% for especialidad in veterinario.especialidades.all %}
                         <span class="badge-clinica me-1">{{ especialidad.nombre }}</span>
                     {% empty %}
@@ -40,6 +51,7 @@
                     {% endfor %}
                 </td>
                 <td>
+                    {# Etiqueta de estado: verde si el veterinario está activo, roja si está inactivo #}
                     {% if veterinario.activo %}
                         <span class="badge-clinica">Activo</span>
                     {% else %}
@@ -47,6 +59,7 @@
                     {% endif %}
                 </td>
                 <td class="pe-4 text-end">
+                    {# Botones de acción: ver detalle, editar y eliminar #}
                     <a href="{% url 'veterinario_detalle' veterinario.uuid %}" class="btn-clinica-fantasma btn-sm">
                         <i class="bi bi-eye"></i>
                     </a>
@@ -60,6 +73,7 @@
             </tr>
             {% empty %}
             <tr>
+                {# Fila que se muestra cuando no hay veterinarios (cláusula empty del bucle); ocupa las 5 columnas #}
                 <td colspan="5" class="text-center py-5 texto-suave">
                     <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                     No hay veterinarios registrados todavía.
@@ -70,4 +84,5 @@
     </table>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

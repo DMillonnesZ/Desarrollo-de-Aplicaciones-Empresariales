@@ -1,26 +1,38 @@
 {% extends 'vetcar/base.html' %}
+{# Confirmación de baja de una mascota (baja lógica: se marca como inactiva, no se borra). #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Dar de baja mascota{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Tarjeta centrada de confirmación con ancho máximo de 520px #}
 <div class="card-clinica p-4 mx-auto" style="max-width: 520px;">
+    {# Icono informativo en color naranja (no es una eliminación definitiva) #}
     <div class="text-center mb-3">
         <i class="bi bi-info-circle" style="font-size: 2.5rem; color: var(--clinica-acento);"></i>
     </div>
+    {# Pregunta de confirmación para dar de baja a la mascota #}
     <h4 class="text-center mb-2">¿Dar de baja a {{ mascota.nombre }}?</h4>
+    {# Aclara que la mascota pasa a inactiva y que su información e historial clínico se conservan #}
     <p class="texto-suave text-center mb-4">
         Esto marca a la mascota como <strong>inactiva</strong> y queda registrado en el historial.
         No se elimina su información ni su historial clínico.
     </p>
 
+    {# Formulario que envía la confirmación por POST; la acción solo se ejecuta al pulsar el botón de confirmar #}
     <form method="post" class="d-flex justify-content-center gap-2">
+        {# Token CSRF obligatorio de Django para proteger el formulario #}
         {% csrf_token %}
+        {# Botón que confirma la baja de la mascota #}
         <button type="submit" class="btn-clinica-peligro">
             <i class="bi bi-slash-circle me-1"></i> Sí, dar de baja
         </button>
+        {# Enlace para cancelar y volver al listado de mascotas #}
         <a href="{% url 'listar_mascotas' %}" class="btn-clinica-fantasma">
             Cancelar
         </a>
     </form>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

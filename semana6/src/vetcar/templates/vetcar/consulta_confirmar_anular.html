@@ -1,33 +1,67 @@
+
+<!-- Hereda la estructura y los estilos de la plantilla base -->
 {% extends 'vetcar/base.html' %}
+
+<!-- Define el título de la página -->
 {% block titulo %}Anular consulta{% endblock %}
+
+<!-- Inicia el contenido principal de la página -->
 {% block contenido %}
 
+<!-- Tarjeta principal para confirmar la anulación de una consulta -->
 <div class="card-clinica p-4 mx-auto" style="max-width: 520px;">
+
+    <!-- Icono rojo que representa la anulación -->
     <div class="text-center mb-3">
         <i class="bi bi-x-circle" style="font-size: 2.5rem; color: #B4483A;"></i>
     </div>
+
+    <!-- Pregunta de confirmación para el usuario -->
     <h4 class="text-center mb-2">¿Anular esta consulta?</h4>
+
+    <!-- Muestra el nombre de la mascota y la fecha de la consulta -->
     <p class="texto-suave text-center mb-4">
+
+        <!-- Información de la consulta obtenida desde Django -->
         {{ consulta.mascota.nombre }} — {{ consulta.fecha|date:"d/m/Y H:i" }}<br>
+
+        <!-- Explica que la consulta se cancela sin eliminar su historial -->
         La consulta pasará a estado <strong>Cancelada</strong> y quedará registrada en la auditoría.
         No se elimina del historial.
     </p>
 
+    <!-- Formulario que envía la solicitud de anulación mediante POST -->
     <form method="post">
+
+        <!-- Token de seguridad CSRF para proteger el formulario -->
         {% csrf_token %}
+
+        <!-- Campo para ingresar el motivo de la anulación -->
         <div class="mb-3">
+
+            <!-- Etiqueta descriptiva del campo -->
             <label for="motivo" class="form-label fw-semibold">Motivo de la anulación</label>
+
+            <!-- Área de texto donde se escribe el motivo -->
             <textarea name="motivo" id="motivo" class="form-control" rows="3" placeholder="Ej. el dueño reprogramó la cita"></textarea>
         </div>
+
+        <!-- Contenedor de los botones de confirmación y cancelación -->
         <div class="d-flex justify-content-center gap-2">
+
+            <!-- Botón que envía el formulario para anular la consulta -->
             <button type="submit" class="btn-clinica-peligro">
                 <i class="bi bi-x-circle me-1"></i> Sí, anular
             </button>
+
+            <!-- Enlace para regresar al listado sin realizar cambios -->
             <a href="{% url 'listar_consultas' %}" class="btn-clinica-fantasma">
                 Cancelar
             </a>
+
         </div>
     </form>
 </div>
 
+<!-- Finaliza el bloque de contenido de Django -->
 {% endblock %}

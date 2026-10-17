@@ -1,8 +1,14 @@
 {% extends 'vetcar/base.html' %}
+{# Confirmación de eliminación de un veterinario (reutiliza la plantilla parcial _confirmar_eliminar.html). #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Eliminar veterinario{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Guarda en url_cancelar la dirección del listado para usarla como destino del botón Cancelar #}
 {% url 'listar_veterinarios' as url_cancelar %}
+{# Incluye la plantilla parcial de confirmación y le envía: la pregunta, la cantidad de atenciones del veterinario (si hay, se advierte que no podrá eliminarse), el sujeto, el nombre de los registros relacionados y la URL de cancelación #}
 {% include 'vetcar/_confirmar_eliminar.html' with pregunta="¿Eliminar a "|add:veterinario.nombre|add:"?" cantidad_relacionados=veterinario.atenciones.count sujeto="Este veterinario" nombre_relacionados="atención(es) registrada(s) a su nombre" url_cancelar=url_cancelar %}
 
+{# Fin del bloque de contenido #}
 {% endblock %}

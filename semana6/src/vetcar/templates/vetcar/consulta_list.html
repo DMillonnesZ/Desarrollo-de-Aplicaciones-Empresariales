@@ -1,19 +1,26 @@
 {% extends 'vetcar/base.html' %}
+{# Listado de consultas: historial de atenciones veterinarias con su estado y acciones de editar o anular. #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Consultas{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado de la sección: título, descripción y botón para registrar una nueva consulta #}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">Consultas</h2>
         <p class="texto-suave mb-0">Historial de atenciones veterinarias</p>
     </div>
+    {# Botón que lleva al formulario de creación de un nuevo registro #}
     <a href="{% url 'crear_consulta' %}" class="btn-clinica-acento">
         <i class="bi bi-plus-lg me-1"></i> Nueva consulta
     </a>
 </div>
 
+{# Tarjeta sin relleno que envuelve la tabla #}
 <div class="card-clinica p-0">
     <table class="table align-middle mb-0">
+        {# Encabezados de las columnas de la tabla #}
         <thead>
             <tr class="texto-suave">
                 <th class="ps-4 py-3">Mascota</th>
@@ -25,13 +32,19 @@
             </tr>
         </thead>
         <tbody>
+            {# Recorre las consultas que envía la vista (variable consultas) y genera una fila por cada una #}
             {% for consulta in consultas %}
             <tr>
+                {# Nombre de la mascota atendida #}
                 <td class="ps-4 fw-semibold">{{ consulta.mascota.nombre }}</td>
+                {# Veterinario que realizó la consulta #}
                 <td class="texto-suave">{{ consulta.veterinario.nombre }}</td>
+                {# Fecha y hora de la consulta con formato día/mes/año hora:minutos #}
                 <td class="texto-suave">{{ consulta.fecha|date:"d/m/Y H:i" }}</td>
+                {# Motivo por el que se realizó la consulta #}
                 <td>{{ consulta.motivo }}</td>
                 <td>
+                    {# Etiqueta según el estado: Atendida (verde), Cancelada (roja) o Pendiente (naranja, caso por defecto) #}
                     {% if consulta.estado == 'ATENDIDA' %}
                         <span class="badge-clinica">Atendida</span>
                     {% elif consulta.estado == 'CANCELADA' %}
@@ -41,9 +54,11 @@
                     {% endif %}
                 </td>
                 <td class="pe-4 text-end">
+                    {# Botón para editar la consulta y gestionar su receta (se identifica por su uuid) #}
                     <a href="{% url 'editar_consulta' consulta.uuid %}" class="btn-clinica-fantasma btn-sm">
                         <i class="bi bi-pencil"></i>
                     </a>
+                    {# El botón de anular solo aparece si la consulta aún no está cancelada #}
                     {% if consulta.estado != 'CANCELADA' %}
                     <a href="{% url 'anular_consulta' consulta.uuid %}" class="btn-clinica-peligro btn-sm">
                         <i class="bi bi-x-circle"></i>
@@ -53,6 +68,7 @@
             </tr>
             {% empty %}
             <tr>
+                {# Fila que se muestra cuando no hay consultas (cláusula empty del bucle); ocupa las 6 columnas #}
                 <td colspan="6" class="text-center py-5 texto-suave">
                     <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                     No hay consultas registradas todavía.
@@ -63,4 +79,5 @@
     </table>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

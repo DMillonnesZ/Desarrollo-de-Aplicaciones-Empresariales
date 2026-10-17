@@ -1,7 +1,11 @@
 {% extends 'vetcar/base.html' %}
+{# Formulario para asignar o editar el seguimiento clínico (veterinario y rol) de una mascota. #}
+{# Título fijo de la pestaña; el mismo formulario sirve para asignar o editar un seguimiento #}
 {% block titulo %}Seguimiento clínico{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado con el nombre de la mascota y una descripción: se asigna un veterinario responsable de su seguimiento continuo #}
 <div class="mb-4">
     <h2 class="mb-0">
         <i class="bi bi-people me-2" style="color: var(--clinica-primaria);"></i>
@@ -10,15 +14,23 @@
     <p class="texto-suave mb-0">Asigna un veterinario responsable del seguimiento continuo de esta mascota</p>
 </div>
 
+{# Tarjeta que contiene el formulario #}
 <div class="card-clinica p-4" style="max-width: 560px;">
+    {# Formulario enviado por POST; novalidate desactiva la validación nativa del navegador porque la validación la realiza Django en el servidor #}
     <form method="post" novalidate>
+        {# Token CSRF obligatorio de Django: protege el formulario contra envíos falsificados desde otros sitios #}
         {% csrf_token %}
 
+        {# Recorre todos los campos del formulario que envía la vista y dibuja cada uno automáticamente #}
         {% for field in form %}
+            {# Se excluye el campo activo del bucle porque se dibuja aparte como interruptor #}
             {% if field.name != 'activo' %}
             <div class="mb-3">
+                {# Etiqueta del campo, vinculada a su input mediante el id #}
                 <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                {# Control de entrada (input, select, textarea...) según el widget definido en el formulario #}
                 {{ field }}
+                {# Muestra debajo del campo los mensajes de error de validación, si los hay #}
                 {% for error in field.errors %}
                     <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
                 {% endfor %}
@@ -26,15 +38,19 @@
             {% endif %}
         {% endfor %}
 
+        {# Interruptor (switch) para indicar si el seguimiento sigue activo; se dibuja a mano fuera del bucle #}
         <div class="form-check form-switch mb-4">
             {{ form.activo }}
             <label class="form-check-label fw-semibold" for="{{ form.activo.id_for_label }}">Seguimiento activo</label>
         </div>
 
+        {# Botones de acción del formulario #}
         <div class="d-flex gap-2">
+            {# Guardar: envía el formulario para registrar o actualizar los datos #}
             <button type="submit" class="btn-clinica">
                 <i class="bi bi-check-lg me-1"></i> Guardar
             </button>
+            {# Enlace para volver a la página de detalle de la mascota sin guardar cambios #}
             <a href="{% url 'mascota_detalle' mascota.uuid %}" class="btn-clinica-fantasma">
                 <i class="bi bi-arrow-left me-1"></i> Volver a {{ mascota.nombre }}
             </a>
@@ -42,4 +58,5 @@
     </form>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

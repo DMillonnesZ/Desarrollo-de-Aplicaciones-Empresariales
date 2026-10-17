@@ -1,13 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Configuración de caracteres y adaptación a dispositivos móviles -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Título dinámico que pueden modificar las plantillas hijas -->
     <title>{% block titulo %}Clínica Veterinaria{% endblock %}</title>
+
+    <!-- Bootstrap 5 para diseño adaptable y componentes visuales -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Biblioteca de iconos de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Fuentes Poppins e Inter de Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
+        /* Variables globales de colores de la clínica */
         :root {
             --clinica-primaria: #2F6D5E;
             --clinica-primaria-oscura: #234F44;
@@ -20,35 +32,42 @@
             --clinica-borde: #DCE3DE;
         }
 
+        /* Estilos generales del cuerpo de la página */
         body {
             background-color: var(--clinica-fondo);
             color: var(--clinica-texto);
             font-family: 'Inter', sans-serif;
         }
 
+        /* Fuente utilizada en títulos y nombre de la clínica */
         h1, h2, h3, h4, .navbar-brand {
             font-family: 'Poppins', sans-serif;
         }
 
+        /* Color de fondo de la barra de navegación */
         .navbar-clinica {
             background-color: var(--clinica-primaria);
         }
 
+        /* Estilos del nombre de la clínica y enlaces del menú */
         .navbar-clinica .navbar-brand,
         .navbar-clinica .nav-link {
             color: #F6F4EF !important;
             font-weight: 500;
         }
 
+        /* Cambio de color al pasar el cursor sobre los enlaces */
         .navbar-clinica .nav-link:hover {
             color: var(--clinica-acento) !important;
         }
 
+        /* Estilo para resaltar el enlace de la sección activa */
         .navbar-clinica .nav-link.activo {
             color: var(--clinica-acento) !important;
             font-weight: 600;
         }
 
+        /* Diseño de las tarjetas utilizadas en el sistema */
         .card-clinica {
             background-color: var(--clinica-superficie);
             border: 1px solid var(--clinica-borde);
@@ -56,7 +75,7 @@
             box-shadow: 0 4px 18px rgba(35, 79, 68, 0.06);
         }
 
-        /* Botones propios: nada de btn-primary / btn-secondary de Bootstrap */
+        /* Botón principal personalizado de color verde */
         .btn-clinica {
             background-color: var(--clinica-primaria);
             color: #fff;
@@ -68,12 +87,14 @@
             transition: background-color 0.2s ease, transform 0.15s ease;
         }
 
+        /* Efecto al pasar el cursor sobre el botón principal */
         .btn-clinica:hover {
             background-color: var(--clinica-primaria-oscura);
             color: #fff;
             transform: translateY(-1px);
         }
 
+        /* Botón secundario de color naranja */
         .btn-clinica-acento {
             background-color: var(--clinica-acento);
             color: #fff;
@@ -85,12 +106,14 @@
             transition: background-color 0.2s ease, transform 0.15s ease;
         }
 
+        /* Efecto al pasar el cursor sobre el botón naranja */
         .btn-clinica-acento:hover {
             background-color: var(--clinica-acento-oscuro);
             color: #fff;
             transform: translateY(-1px);
         }
 
+        /* Botón transparente con borde verde, usado para cancelar */
         .btn-clinica-fantasma {
             background-color: transparent;
             color: var(--clinica-primaria);
@@ -102,11 +125,13 @@
             transition: all 0.2s ease;
         }
 
+        /* Efecto de relleno verde al pasar el cursor */
         .btn-clinica-fantasma:hover {
             background-color: var(--clinica-primaria);
             color: #fff;
         }
 
+        /* Botón rojo utilizado para acciones de eliminación */
         .btn-clinica-peligro {
             background-color: transparent;
             color: #B4483A;
@@ -118,11 +143,13 @@
             transition: all 0.2s ease;
         }
 
+        /* Efecto de relleno rojo al pasar el cursor */
         .btn-clinica-peligro:hover {
             background-color: #B4483A;
             color: #fff;
         }
 
+        /* Etiqueta verde para mostrar estados activos */
         .badge-clinica {
             background-color: rgba(47, 109, 94, 0.12);
             color: var(--clinica-primaria-oscura);
@@ -132,6 +159,7 @@
             font-size: 0.78rem;
         }
 
+        /* Etiqueta roja para mostrar estados inactivos */
         .badge-clinica-inactivo {
             background-color: rgba(180, 72, 58, 0.1);
             color: #B4483A;
@@ -141,10 +169,12 @@
             font-size: 0.78rem;
         }
 
+        /* Color secundario para textos informativos */
         .texto-suave {
             color: var(--clinica-texto-suave);
         }
 
+        /* Tamaño y color del logotipo de huella */
         .logo-huella {
             width: 26px;
             height: 26px;
@@ -153,6 +183,7 @@
             vertical-align: -6px;
         }
 
+        /* Resaltado de campos y listas desplegables al seleccionarlos */
         .form-control:focus, .form-select:focus {
             border-color: var(--clinica-primaria);
             box-shadow: 0 0 0 0.2rem rgba(47, 109, 94, 0.15);
@@ -160,9 +191,15 @@
     </style>
 </head>
 <body>
+
+    <!-- Barra de navegación principal de la clínica -->
     <nav class="navbar navbar-expand-lg navbar-clinica mb-4 shadow-sm">
         <div class="container">
+
+            <!-- Logotipo y enlace a la lista de mascotas -->
             <a class="navbar-brand" href="{% url 'listar_mascotas' %}">
+
+                <!-- Imagen SVG de una huella de mascota -->
                 <svg class="logo-huella" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <ellipse cx="32" cy="42" rx="16" ry="13"/>
                     <ellipse cx="12" cy="24" rx="7" ry="9" transform="rotate(-18 12 24)"/>
@@ -170,28 +207,64 @@
                     <ellipse cx="43" cy="14" rx="7.5" ry="9.5" transform="rotate(6 43 14)"/>
                     <ellipse cx="54" cy="25" rx="7" ry="9" transform="rotate(18 54 25)"/>
                 </svg>
+
                 Clínica Veterinaria
             </a>
+
+            <!-- Botón que despliega el menú en pantallas pequeñas -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navClinica">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            <!-- Contenedor de los enlaces de navegación -->
             <div class="collapse navbar-collapse" id="navClinica">
                 <ul class="navbar-nav ms-auto gap-lg-2">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_duenos' %}">Dueños</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_veterinarios' %}">Veterinarios</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_razas' %}">Razas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_mascotas' %}">Mascotas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_consultas' %}">Consultas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_vacunaciones' %}">Vacunaciones</a></li>
+
+                    <!-- Acceso al módulo de dueños -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_duenos' %}">Dueños</a>
+                    </li>
+
+                    <!-- Acceso al módulo de veterinarios -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_veterinarios' %}">Veterinarios</a>
+                    </li>
+
+                    <!-- Acceso al módulo de razas -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_razas' %}">Razas</a>
+                    </li>
+
+                    <!-- Acceso al módulo de mascotas -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_mascotas' %}">Mascotas</a>
+                    </li>
+
+                    <!-- Acceso al módulo de consultas veterinarias -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_consultas' %}">Consultas</a>
+                    </li>
+
+                    <!-- Acceso al módulo de vacunaciones -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_vacunaciones' %}">Vacunaciones</a>
+                    </li>
+
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Contenedor principal donde se muestra el contenido de cada página -->
     <div class="container pb-5">
+
+        <!-- Bloque de Django que las plantillas hijas pueden reemplazar -->
         {% block contenido %}{% endblock %}
+
     </div>
 
+    <!-- JavaScript de Bootstrap para el menú y componentes interactivos -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

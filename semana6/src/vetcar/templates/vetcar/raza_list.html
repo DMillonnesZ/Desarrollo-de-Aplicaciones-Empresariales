@@ -1,19 +1,26 @@
 {% extends 'vetcar/base.html' %}
+{# Listado del catálogo de razas: tabla con raza, especie, cantidad de mascotas y acciones. #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Razas{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado de la sección: título, descripción y botón para agregar una nueva raza #}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">Razas</h2>
         <p class="texto-suave mb-0">Catálogo de razas por especie</p>
     </div>
+    {# Botón que lleva al formulario de creación de un nuevo registro #}
     <a href="{% url 'crear_raza' %}" class="btn-clinica-acento">
         <i class="bi bi-plus-lg me-1"></i> Nueva raza
     </a>
 </div>
 
+{# Tarjeta sin relleno que envuelve la tabla #}
 <div class="card-clinica p-0">
     <table class="table align-middle mb-0">
+        {# Encabezados de las columnas de la tabla #}
         <thead>
             <tr class="texto-suave">
                 <th class="ps-4 py-3">Raza</th>
@@ -23,17 +30,23 @@
             </tr>
         </thead>
         <tbody>
+            {# Recorre las razas que envía la vista (variable razas) y genera una fila por cada una #}
             {% for raza in razas %}
             <tr>
+                {# Nombre de la raza #}
                 <td class="ps-4 fw-semibold">{{ raza.nombre }}</td>
                 <td>
+                    {# Etiqueta con la especie a la que pertenece la raza (relación con el modelo de especie) #}
                     <span class="badge-clinica">{{ raza.especie.nombre }}</span>
                 </td>
+                {# Cantidad de mascotas registradas con esta raza (relación inversa mascotas) #}
                 <td class="texto-suave">{{ raza.mascotas.count }}</td>
                 <td class="pe-4 text-end">
+                    {# Botón para editar la raza (se identifica por su uuid) #}
                     <a href="{% url 'editar_raza' raza.uuid %}" class="btn-clinica-fantasma btn-sm">
                         <i class="bi bi-pencil"></i>
                     </a>
+                    {# Botón que lleva a la confirmación para eliminar la raza #}
                     <a href="{% url 'eliminar_raza' raza.uuid %}" class="btn-clinica-peligro btn-sm">
                         <i class="bi bi-trash"></i>
                     </a>
@@ -41,6 +54,7 @@
             </tr>
             {% empty %}
             <tr>
+                {# Fila que se muestra cuando no hay razas (cláusula empty del bucle); ocupa las 4 columnas #}
                 <td colspan="4" class="text-center py-5 texto-suave">
                     <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                     No hay razas registradas todavía.
@@ -51,4 +65,5 @@
     </table>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

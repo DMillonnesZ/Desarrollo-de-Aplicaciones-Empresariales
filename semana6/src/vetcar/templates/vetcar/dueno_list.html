@@ -1,19 +1,26 @@
 {% extends 'vetcar/base.html' %}
+{# Listado de dueños: tabla con nombre, DNI, teléfono, cantidad de mascotas, estado y acciones. #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Dueños{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado de la sección: título, descripción y botón para registrar un nuevo dueño #}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">Dueños</h2>
         <p class="texto-suave mb-0">Personas responsables de las mascotas registradas</p>
     </div>
+    {# Botón que lleva al formulario de creación de un nuevo registro #}
     <a href="{% url 'crear_dueno' %}" class="btn-clinica-acento">
         <i class="bi bi-plus-lg me-1"></i> Nuevo dueño
     </a>
 </div>
 
+{# Tarjeta sin relleno que envuelve la tabla #}
 <div class="card-clinica p-0">
     <table class="table align-middle mb-0">
+        {# Encabezados de las columnas de la tabla #}
         <thead>
             <tr class="texto-suave">
                 <th class="ps-4 py-3">Nombre</th>
@@ -25,17 +32,23 @@
             </tr>
         </thead>
         <tbody>
+            {# Recorre los dueños que envía la vista (variable duenos) y genera una fila por cada uno #}
             {% for dueno in duenos %}
             <tr>
+                {# Nombre completo del dueño #}
                 <td class="ps-4 fw-semibold">{{ dueno.nombre }}</td>
+                {# Documento de identidad (DNI) del dueño #}
                 <td>{{ dueno.dni }}</td>
+                {# Teléfono del dueño; si está vacío muestra un guion gracias al filtro default #}
                 <td class="texto-suave">{{ dueno.telefono|default:"—" }}</td>
                 <td>
+                    {# Etiqueta con la cantidad de mascotas que tiene el dueño (relación inversa mascotas) #}
                     <span class="badge-clinica">
                         <i class="bi bi-heart-fill me-1"></i>{{ dueno.mascotas.count }}
                     </span>
                 </td>
                 <td>
+                    {# Etiqueta de estado: verde si el dueño está activo, roja si está inactivo #}
                     {% if dueno.activo %}
                         <span class="badge-clinica">Activo</span>
                     {% else %}
@@ -43,9 +56,11 @@
                     {% endif %}
                 </td>
                 <td class="pe-4 text-end">
+                    {# Botón para editar los datos del dueño (se identifica por su uuid) #}
                     <a href="{% url 'editar_dueno' dueno.uuid %}" class="btn-clinica-fantasma btn-sm">
                         <i class="bi bi-pencil"></i>
                     </a>
+                    {# Botón que lleva a la pantalla de confirmación para eliminar al dueño #}
                     <a href="{% url 'eliminar_dueno' dueno.uuid %}" class="btn-clinica-peligro btn-sm">
                         <i class="bi bi-trash"></i>
                     </a>
@@ -53,6 +68,7 @@
             </tr>
             {% empty %}
             <tr>
+                {# Fila que se muestra cuando no hay dueños (cláusula empty del bucle); ocupa las 6 columnas #}
                 <td colspan="6" class="text-center py-5 texto-suave">
                     <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                     No hay dueños registrados todavía.
@@ -63,4 +79,5 @@
     </table>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

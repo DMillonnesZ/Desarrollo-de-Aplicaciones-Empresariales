@@ -1,7 +1,11 @@
 {% extends 'vetcar/base.html' %}
+{# Formulario para agregar un medicamento (con cantidad y dosis) a la receta de una consulta. #}
+{# Título fijo de la pestaña para agregar un medicamento a una receta #}
 {% block titulo %}Agregar medicamento{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado que indica a qué consulta se agrega el medicamento: nombre de la mascota y fecha de la consulta #}
 <div class="mb-4">
     <h2 class="mb-0">
         <i class="bi bi-capsule me-2" style="color: var(--clinica-primaria);"></i>
@@ -12,24 +16,34 @@
     </p>
 </div>
 
+{# Tarjeta que contiene el formulario #}
 <div class="card-clinica p-4" style="max-width: 560px;">
+    {# Formulario enviado por POST; novalidate desactiva la validación nativa del navegador porque la validación la realiza Django en el servidor #}
     <form method="post" novalidate>
+        {# Token CSRF obligatorio de Django: protege el formulario contra envíos falsificados desde otros sitios #}
         {% csrf_token %}
 
+        {# Recorre todos los campos del formulario que envía la vista y dibuja cada uno automáticamente #}
         {% for field in form %}
         <div class="mb-3">
+            {# Etiqueta del campo, vinculada a su input mediante el id #}
             <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+            {# Control de entrada (input, select, textarea...) según el widget definido en el formulario #}
             {{ field }}
+            {# Muestra debajo del campo los mensajes de error de validación, si los hay #}
             {% for error in field.errors %}
                 <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
             {% endfor %}
         </div>
         {% endfor %}
 
+        {# Botones de acción del formulario #}
         <div class="d-flex gap-2 mt-4">
+            {# Guardar: envía el formulario para registrar o actualizar los datos #}
             <button type="submit" class="btn-clinica">
                 <i class="bi bi-check-lg me-1"></i> Guardar
             </button>
+            {# Enlace para volver a la consulta (donde se ve la receta) sin guardar cambios #}
             <a href="{% url 'editar_consulta' consulta.uuid %}" class="btn-clinica-fantasma">
                 <i class="bi bi-arrow-left me-1"></i> Volver a la consulta
             </a>
@@ -37,4 +51,5 @@
     </form>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

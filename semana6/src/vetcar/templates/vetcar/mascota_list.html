@@ -1,52 +1,69 @@
 {% extends 'vetcar/base.html' %}
+{# Listado de mascotas: pacientes de la clínica mostrados como tarjetas con acceso a detalle, edición y baja. #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Mascotas{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Encabezado de la sección: título, descripción y botón para registrar una nueva mascota #}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">Mascotas</h2>
         <p class="texto-suave mb-0">Pacientes registrados en la clínica</p>
     </div>
+    {# Botón que lleva al formulario de creación de una mascota #}
     <a href="{% url 'crear_mascota' %}" class="btn-clinica-acento">
         <i class="bi bi-plus-lg me-1"></i> Nueva mascota
     </a>
 </div>
 
+{# Cuadrícula de tarjetas: una por fila en móvil, dos en pantallas medianas y tres en pantallas grandes #}
 <div class="row g-3">
+    {# Recorre las mascotas que envía la vista (variable mascotas) y genera una tarjeta por cada una #}
     {% for mascota in mascotas %}
     <div class="col-md-6 col-lg-4">
+        {# Tarjeta de una mascota; h-100 y flex-column igualan las alturas y permiten fijar los botones al fondo #}
         <div class="card-clinica p-3 h-100 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <h5 class="mb-0">
+                    {# Nombre de la mascota como enlace a su página de detalle #}
                     <a href="{% url 'mascota_detalle' mascota.uuid %}" class="text-decoration-none" style="color: var(--clinica-texto);">
                         {{ mascota.nombre }}
                     </a>
                 </h5>
+                {# Etiqueta de estado: verde si la mascota está activa, roja si está inactiva #}
                 {% if mascota.activo %}
                     <span class="badge-clinica">Activa</span>
                 {% else %}
                     <span class="badge-clinica-inactivo">Inactiva</span>
                 {% endif %}
             </div>
+            {# Raza de la mascota #}
             <p class="texto-suave mb-1"><i class="bi bi-tag me-1"></i>{{ mascota.raza.nombre }}</p>
+            {# Nombre del dueño responsable de la mascota #}
             <p class="texto-suave mb-1"><i class="bi bi-person me-1"></i>{{ mascota.dueno.nombre }}</p>
             <p class="texto-suave mb-3">
+                {# Icono de género: masculino si el sexo es M, femenino en caso contrario; get_sexo_display muestra el texto legible #}
                 <i class="bi bi-gender-{% if mascota.sexo == 'M' %}male{% else %}female{% endif %} me-1"></i>
                 {{ mascota.get_sexo_display }}
             </p>
+            {# Botones de acción empujados al fondo de la tarjeta: ver detalle, editar y dar de baja #}
             <div class="mt-auto d-flex gap-2">
                 <a href="{% url 'mascota_detalle' mascota.uuid %}" class="btn-clinica-fantasma btn-sm flex-fill text-center">
                     <i class="bi bi-eye me-1"></i> Ver
                 </a>
+                {# Botón para editar los datos de la mascota #}
                 <a href="{% url 'editar_mascota' mascota.uuid %}" class="btn-clinica-fantasma btn-sm">
                     <i class="bi bi-pencil"></i>
                 </a>
+                {# Botón que lleva a la confirmación de baja (la mascota se marca como inactiva, no se borra) #}
                 <a href="{% url 'eliminar_mascota' mascota.uuid %}" class="btn-clinica-peligro btn-sm">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>
         </div>
     </div>
+    {# Mensaje que se muestra cuando todavía no hay mascotas registradas #}
     {% empty %}
     <div class="col-12">
         <div class="card-clinica p-5 text-center texto-suave">
@@ -57,4 +74,5 @@
     {% endfor %}
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}

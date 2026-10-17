@@ -1,26 +1,38 @@
 {% extends 'vetcar/base.html' %}
+{# Confirmación para quitar el seguimiento clínico de una mascota. #}
+{# Título de la pestaña del navegador #}
 {% block titulo %}Quitar seguimiento{% endblock %}
+{# Inicio del contenido principal: reemplaza el bloque contenido de base.html #}
 {% block contenido %}
 
+{# Tarjeta centrada de confirmación con ancho máximo de 520px #}
 <div class="card-clinica p-4 mx-auto" style="max-width: 520px;">
+    {# Icono de advertencia #}
     <div class="text-center mb-3">
         <i class="bi bi-exclamation-triangle" style="font-size: 2.5rem; color: #B4483A;"></i>
     </div>
+    {# Pregunta de confirmación para quitar el seguimiento #}
     <h4 class="text-center mb-2">¿Quitar este seguimiento?</h4>
+    {# Explica el efecto: el veterinario dejará de aparecer con su rol (get_rol_display en minúsculas) en la mascota indicada #}
     <p class="texto-suave text-center mb-4">
         {{ seguimiento.veterinario.nombre }} dejará de aparecer como {{ seguimiento.get_rol_display|lower }}
         de {{ seguimiento.mascota.nombre }}.
     </p>
 
+    {# Formulario que envía la confirmación por POST; la acción solo se ejecuta al pulsar el botón de confirmar #}
     <form method="post" class="d-flex justify-content-center gap-2">
+        {# Token CSRF obligatorio de Django para proteger el formulario #}
         {% csrf_token %}
+        {# Botón que confirma y quita el seguimiento #}
         <button type="submit" class="btn-clinica-peligro">
             <i class="bi bi-trash me-1"></i> Sí, quitar
         </button>
+        {# Enlace para cancelar y volver al detalle de la mascota sin quitar el seguimiento #}
         <a href="{% url 'mascota_detalle' seguimiento.mascota.uuid %}" class="btn-clinica-fantasma">
             Cancelar
         </a>
     </form>
 </div>
 
+{# Fin del bloque de contenido #}
 {% endblock %}
