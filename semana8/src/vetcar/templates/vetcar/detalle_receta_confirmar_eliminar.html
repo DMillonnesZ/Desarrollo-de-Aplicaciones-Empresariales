@@ -1,0 +1,25 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}Quitar medicamento{% endblock %}
+{% block contenido %}
+
+<div class="card-clinica p-4 mx-auto" style="max-width: 520px;">
+    <div class="text-center mb-3">
+        <i class="bi bi-exclamation-triangle" style="font-size: 2.5rem; color: #B4483A;"></i>
+    </div>
+    <h4 class="text-center mb-2">¿Quitar {{ detalle.medicamento.nombre }} de la receta?</h4>
+    <p class="texto-suave text-center mb-4">
+        Cantidad: {{ detalle.cantidad }} — Dosis: {{ detalle.dosis }}
+    </p>
+
+    <form method="post" class="d-flex justify-content-center gap-2">
+        {% csrf_token %}
+        <button type="submit" class="btn-clinica-peligro">
+            <i class="bi bi-trash me-1"></i> Sí, quitar
+        </button>
+        <a href="{% url 'editar_consulta' detalle.consulta.uuid %}" class="btn-clinica-fantasma">
+            Cancelar
+        </a>
+    </form>
+</div>
+
+{% endblock %}

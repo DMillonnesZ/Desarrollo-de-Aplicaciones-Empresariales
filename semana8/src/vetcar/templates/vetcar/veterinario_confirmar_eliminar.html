@@ -1,0 +1,8 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}Eliminar veterinario{% endblock %}
+{% block contenido %}
+
+{% url 'listar_veterinarios' as url_cancelar %}
+{% include 'vetcar/_confirmar_eliminar.html' with pregunta="¿Eliminar a "|add:veterinario.nombre|add:"?" cantidad_relacionados=veterinario.atenciones.count sujeto="Este veterinario" nombre_relacionados="atención(es) registrada(s) a su nombre" url_cancelar=url_cancelar %}
+
+{% endblock %}

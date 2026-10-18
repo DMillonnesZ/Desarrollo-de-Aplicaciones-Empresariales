@@ -1,0 +1,70 @@
+{% extends 'vetcar/base.html' %}
+
+{% block titulo %}Registrar receta{% endblock %}
+
+{% block contenido %}
+<div class="mb-4">
+    <h2 class="mb-0">
+        <i class="bi bi-capsule me-2"
+           style="color: var(--clinica-primaria);"></i>
+        Registrar receta
+    </h2>
+    <p class="texto-suave mb-0">
+        {{ consulta.mascota.nombre }} —
+        {{ consulta.fecha|date:"d/m/Y H:i" }}
+    </p>
+    <p class="texto-suave mt-2">
+        Al registrar, se descontará el stock y se sumará
+        el importe del medicamento al costo de la consulta.
+    </p>
+</div>
+
+{% if error %}
+<div class="alert alert-danger" role="alert" style="max-width: 680px;">
+    <i class="bi bi-exclamation-triangle me-1"></i>
+    {{ error }}
+</div>
+{% endif %}
+
+<div class="card-clinica p-4" style="max-width: 680px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% for error in form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+
+        {% for field in form %}
+        <div class="mb-3">
+            <label class="form-label fw-semibold"
+                   for="{{ field.id_for_label }}">
+                {{ field.label }}
+            </label>
+
+            {{ field }}
+
+            {% for error in field.errors %}
+            <div class="text-danger small mt-1">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                {{ error }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn-clinica">
+                <i class="bi bi-check-lg me-1"></i>
+                Registrar
+            </button>
+            <a href="{% url 'editar_consulta' consulta.uuid %}"
+               class="btn-clinica-fantasma">
+                <i class="bi bi-arrow-left me-1"></i>
+                Volver
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
