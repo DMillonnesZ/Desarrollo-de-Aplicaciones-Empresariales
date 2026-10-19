@@ -15,11 +15,14 @@ function App() {
       <h1>{nombreApp} — Veterinaria</h1>
       <p>Amoxicilina 500mg con IGV: S/ {conIgv(12.5)}</p>
       <h2>Medicamentos</h2>
+  {medicamentos.length === 0 && <p>No hay registros</p>}
 <ul>
   {medicamentos.map((m) => (
     <li key={m.id}>
-      {m.nombre} — S/ {Number(m.precio_unitario).toFixed(2)}
-    </li>
+  {m.nombre} — S/ {Number(m.precio_unitario).toFixed(2)}{" "}
+  {m.stock === 0 ? <span>Agotado</span> : <span>Stock: {m.stock}</span>}
+  {m.stock > 0 && m.stock <= 5 && <strong> ¡Últimas unidades!</strong>}
+</li>
   ))}
 </ul>
     </div>
