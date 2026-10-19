@@ -53,20 +53,54 @@ const totalReceta = (detalles) =>
     0
   );
 
-// Misma forma que GET /api/veterinarios/
+const seguimientosActivos = (seguimientos) =>
+  seguimientos.filter((s) => s.activo).length;
+
 const veterinarios = [
-  { id: 1, uuid: "v1", nombre: "Ana Torres", telefono: "", correo: "", activo: true, colegiatura: "CMVP-12345", especialidades: [1], fecha_ingreso: "2020-01-15", cupos_disponibles: 10 },
-  { id: 2, uuid: "v2", nombre: "Luis Mendoza", telefono: "", correo: "", activo: true, colegiatura: "CMVP-23456", especialidades: [2], fecha_ingreso: "2021-03-10", cupos_disponibles: 0 },
-  { id: 3, uuid: "v3", nombre: "Rosa Quispe", telefono: "", correo: "", activo: false, colegiatura: "CMVP-34567", especialidades: [1], fecha_ingreso: "2019-06-01", cupos_disponibles: 5 },
+  {
+    id: 1,
+    uuid: "v1",
+    nombre: "Ana Torres",
+    telefono: "",
+    correo: "",
+    activo: true,
+    colegiatura: "CMVP-12345",
+    especialidades: [1],
+    fecha_ingreso: "2020-01-15",
+    cupos_disponibles: 10,
+  },
+  {
+    id: 2,
+    uuid: "v2",
+    nombre: "Luis Mendoza",
+    telefono: "",
+    correo: "",
+    activo: true,
+    colegiatura: "CMVP-23456",
+    especialidades: [2],
+    fecha_ingreso: "2021-03-10",
+    cupos_disponibles: 0,
+  },
+  {
+    id: 3,
+    uuid: "v3",
+    nombre: "Rosa Quispe",
+    telefono: "",
+    correo: "",
+    activo: false,
+    colegiatura: "CMVP-34567",
+    especialidades: [1],
+    fecha_ingreso: "2019-06-01",
+    cupos_disponibles: 5,
+  },
 ];
 
-// Misma forma que GET /api/mascotas/
 const fichaBase = {
   alergias: "Ninguna",
   condiciones_cronicas: "",
   seguro_veterinario: "",
   contacto_emergencia: "",
-  observaciones: "Control anual"
+  observaciones: "Control anual",
 };
 
 const mascotas = [
@@ -81,8 +115,20 @@ const mascotas = [
     especie: "Perro",
     ficha_clinica: fichaBase,
     seguimientos: [
-      { uuid: "s1", veterinario: "Ana Torres", rol: "TITULAR", fecha_asignacion: "2026-01-10", activo: true },
-      { uuid: "s2", veterinario: "Luis Mendoza", rol: "INTERCONSULTA", fecha_asignacion: "2026-02-05", activo: true },
+      {
+        uuid: "s1",
+        veterinario: "Ana Torres",
+        rol: "TITULAR",
+        fecha_asignacion: "2026-01-10",
+        activo: true,
+      },
+      {
+        uuid: "s2",
+        veterinario: "Luis Mendoza",
+        rol: "INTERCONSULTA",
+        fecha_asignacion: "2026-02-05",
+        activo: true,
+      },
     ],
   },
   {
@@ -96,8 +142,20 @@ const mascotas = [
     especie: "Gato",
     ficha_clinica: fichaBase,
     seguimientos: [
-      { uuid: "s3", veterinario: "Ana Torres", rol: "TITULAR", fecha_asignacion: "2026-01-10", activo: true },
-      { uuid: "s4", veterinario: "Luis Mendoza", rol: "INTERCONSULTA", fecha_asignacion: "2026-02-05", activo: false },
+      {
+        uuid: "s3",
+        veterinario: "Ana Torres",
+        rol: "TITULAR",
+        fecha_asignacion: "2026-01-10",
+        activo: true,
+      },
+      {
+        uuid: "s4",
+        veterinario: "Luis Mendoza",
+        rol: "INTERCONSULTA",
+        fecha_asignacion: "2026-02-05",
+        activo: false,
+      },
     ],
   },
   {
@@ -111,7 +169,13 @@ const mascotas = [
     especie: "Perro",
     ficha_clinica: fichaBase,
     seguimientos: [
-      { uuid: "s5", veterinario: "Ana Torres", rol: "TITULAR", fecha_asignacion: "2026-01-10", activo: true },
+      {
+        uuid: "s5",
+        veterinario: "Ana Torres",
+        rol: "TITULAR",
+        fecha_asignacion: "2026-01-10",
+        activo: true,
+      },
     ],
   },
   {
@@ -241,25 +305,87 @@ function App() {
       </div>
 
       <section className="seccion">
-        <h2>
-          Veterinaria — {veterinarios.length} veterinarios y {mascotas.length} mascotas
+        <h2 style={{ color: "#0b6e4f" }}>
+          Veterinaria — {veterinarios.length} veterinarios y{" "}
+          {mascotas.length} mascotas
         </h2>
 
         <h3>Veterinarios</h3>
 
+        {veterinarios.length === 0 && (
+          <p className="vacio">No hay registros</p>
+        )}
+
         <ul className="lista">
           {veterinarios.map((v) => (
             <li key={v.id} className="tarjeta">
-              <strong>{v.nombre}</strong> ({v.colegiatura}) — ingreso: {v.fecha_ingreso}
+              <strong>{v.nombre}</strong>{" "}
+              ({v.colegiatura}) — ingreso: {v.fecha_ingreso}{" "}
+
+              {v.cupos_disponibles === 0 ? (
+                <span className="agotado">
+                  Sin cupos
+                </span>
+              ) : (
+                <span>
+                  Cupos: {v.cupos_disponibles}
+                </span>
+              )}
+
+              {!v.activo && (
+                <span className="inactivo">
+                  Inactivo
+                </span>
+              )}
             </li>
           ))}
         </ul>
 
         <h3>Mascotas</h3>
 
+        {mascotas.length === 0 && (
+          <p className="vacio">No hay registros</p>
+        )}
+
         {mascotas.map((m) => (
           <div key={m.uuid} className="tarjeta">
-            <strong>{m.nombre}</strong> — {m.raza} ({m.especie}) | Dueño: {m.dueno} | {Number(m.peso_kg).toFixed(2)} kg
+            <h4 style={{ margin: 0 }}>
+              {m.nombre} — {m.raza} ({m.especie})
+            </h4>
+
+            <p>
+              Dueño: {m.dueno} | Peso:{" "}
+              {Number(m.peso_kg).toFixed(2)} kg
+            </p>
+
+            {m.seguimientos.length === 0 ? (
+              <p className="vacio">
+                Sin seguimientos
+              </p>
+            ) : (
+              <ul>
+                {m.seguimientos.map((s) => (
+                  <li key={s.uuid}>
+                    {s.veterinario} — {s.rol}
+                    {" (desde "}
+                    {s.fecha_asignacion}
+                    {") · "}
+                    {s.activo
+                      ? "activo"
+                      : "inactivo"}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <p>
+              <strong>
+                Seguimientos activos:{" "}
+                {seguimientosActivos(
+                  m.seguimientos
+                )}
+              </strong>
+            </p>
           </div>
         ))}
       </section>
