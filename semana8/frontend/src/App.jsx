@@ -1,4 +1,6 @@
 
+import "./App.css";
+
 const medicamentos = [
   { id: 1, uuid: "m1", nombre: "Amoxicilina 500mg", descripcion: "Antibiótico", stock: 50, precio_unitario: "12.50" },
   { id: 2, uuid: "m2", nombre: "Ivermectina", descripcion: "Antiparasitario", stock: 30, precio_unitario: "8.90" },
@@ -51,6 +53,81 @@ const totalReceta = (detalles) =>
     0
   );
 
+// Misma forma que GET /api/veterinarios/
+const veterinarios = [
+  { id: 1, uuid: "v1", nombre: "Ana Torres", telefono: "", correo: "", activo: true, colegiatura: "CMVP-12345", especialidades: [1], fecha_ingreso: "2020-01-15", cupos_disponibles: 10 },
+  { id: 2, uuid: "v2", nombre: "Luis Mendoza", telefono: "", correo: "", activo: true, colegiatura: "CMVP-23456", especialidades: [2], fecha_ingreso: "2021-03-10", cupos_disponibles: 0 },
+  { id: 3, uuid: "v3", nombre: "Rosa Quispe", telefono: "", correo: "", activo: false, colegiatura: "CMVP-34567", especialidades: [1], fecha_ingreso: "2019-06-01", cupos_disponibles: 5 },
+];
+
+// Misma forma que GET /api/mascotas/
+const fichaBase = {
+  alergias: "Ninguna",
+  condiciones_cronicas: "",
+  seguro_veterinario: "",
+  contacto_emergencia: "",
+  observaciones: "Control anual"
+};
+
+const mascotas = [
+  {
+    uuid: "p1",
+    nombre: "Firulais",
+    sexo: "M",
+    peso_kg: "28.50",
+    activo: true,
+    dueno: "Carlos Ramirez",
+    raza: "Labrador",
+    especie: "Perro",
+    ficha_clinica: fichaBase,
+    seguimientos: [
+      { uuid: "s1", veterinario: "Ana Torres", rol: "TITULAR", fecha_asignacion: "2026-01-10", activo: true },
+      { uuid: "s2", veterinario: "Luis Mendoza", rol: "INTERCONSULTA", fecha_asignacion: "2026-02-05", activo: true },
+    ],
+  },
+  {
+    uuid: "p2",
+    nombre: "Michi",
+    sexo: "H",
+    peso_kg: "4.20",
+    activo: true,
+    dueno: "Maria Lopez",
+    raza: "Siames",
+    especie: "Gato",
+    ficha_clinica: fichaBase,
+    seguimientos: [
+      { uuid: "s3", veterinario: "Ana Torres", rol: "TITULAR", fecha_asignacion: "2026-01-10", activo: true },
+      { uuid: "s4", veterinario: "Luis Mendoza", rol: "INTERCONSULTA", fecha_asignacion: "2026-02-05", activo: false },
+    ],
+  },
+  {
+    uuid: "p3",
+    nombre: "Rex",
+    sexo: "M",
+    peso_kg: "31.00",
+    activo: true,
+    dueno: "Jorge Salas",
+    raza: "Labrador",
+    especie: "Perro",
+    ficha_clinica: fichaBase,
+    seguimientos: [
+      { uuid: "s5", veterinario: "Ana Torres", rol: "TITULAR", fecha_asignacion: "2026-01-10", activo: true },
+    ],
+  },
+  {
+    uuid: "p4",
+    nombre: "Luna",
+    sexo: "H",
+    peso_kg: "6.80",
+    activo: false,
+    dueno: "Maria Lopez",
+    raza: "Poodle",
+    especie: "Perro",
+    ficha_clinica: fichaBase,
+    seguimientos: [],
+  },
+];
+
 function App() {
   const nombreApp = "VetCar";
   const igv = 0.18;
@@ -59,8 +136,14 @@ function App() {
     (precio * (1 + igv)).toFixed(2);
 
   return (
-    <div>
-      <h1>{nombreApp} — Veterinaria</h1>
+    <div className="contenedor">
+      <h1 style={{ color: "#0b6e4f", textAlign: "center" }}>
+        {nombreApp} — Veterinaria
+      </h1>
+
+      <p className="subtitulo">
+        Sistema de medicamentos, consultas y recetas
+      </p>
 
       <p>
         Amoxicilina 500mg con IGV: S/ {conIgv(12.5)}
@@ -68,21 +151,32 @@ function App() {
 
       <h2>Medicamentos</h2>
 
-      {medicamentos.length === 0 && <p>No hay registros</p>}
+      {medicamentos.length === 0 && (
+        <p className="vacio">No hay registros</p>
+      )}
 
-      <ul>
+      <ul className="lista">
         {medicamentos.map((m) => (
-          <li key={m.id}>
-            {m.nombre} — S/ {Number(m.precio_unitario).toFixed(2)}{" "}
+          <li key={m.id} className="tarjeta">
+            <strong>{m.nombre}</strong>
+
+            <p>{m.descripcion}</p>
+
+            <p>
+              Precio: S/{" "}
+              {Number(m.precio_unitario).toFixed(2)}
+            </p>
 
             {m.stock === 0 ? (
-              <span>Agotado</span>
+              <span className="agotado">Agotado</span>
             ) : (
               <span>Stock: {m.stock}</span>
             )}
 
             {m.stock > 0 && m.stock <= 5 && (
-              <strong> ¡Últimas unidades!</strong>
+              <span className="ultimas">
+                ¡Últimas unidades!
+              </span>
             )}
           </li>
         ))}
@@ -90,34 +184,85 @@ function App() {
 
       <h2>Consultas y recetas</h2>
 
-      {consultas.map((c) => (
-        <div key={c.uuid}>
-          <h3>
-            {c.mascota} — {c.motivo} ({c.estado})
-          </h3>
+      <div className="lista-consultas">
+        {consultas.map((c) => (
+          <div key={c.uuid} className="tarjeta">
+            <h3>
+              {c.mascota} — {c.motivo}
+            </h3>
 
-          <p>Veterinario: {c.veterinario}</p>
+            <p>
+              Estado:{" "}
+              <span
+                className={
+                  c.estado === "ATENDIDA"
+                    ? "atendida"
+                    : "pendiente"
+                }
+              >
+                {c.estado}
+              </span>
+            </p>
 
-          {c.detalles_receta.length === 0 ? (
-            <p>Sin receta</p>
-          ) : (
-            <ul>
-              {c.detalles_receta.map((d) => (
-                <li key={d.uuid}>
-                  {d.medicamento} × {d.cantidad} — S/{" "}
-                  {(d.cantidad * Number(d.precio_unitario)).toFixed(2)}
-                </li>
-              ))}
-            </ul>
-          )}
+            <p>Veterinario: {c.veterinario}</p>
 
-          <p>
-            <strong>
-              Total receta: S/ {totalReceta(c.detalles_receta).toFixed(2)}
-            </strong>
-          </p>
-        </div>
-      ))}
+            <p>
+              Costo consulta: S/{" "}
+              {Number(c.costo).toFixed(2)}
+            </p>
+
+            <h4>Receta médica</h4>
+
+            {c.detalles_receta.length === 0 ? (
+              <p className="vacio">Sin receta</p>
+            ) : (
+              <ul>
+                {c.detalles_receta.map((d) => (
+                  <li key={d.uuid}>
+                    {d.medicamento} × {d.cantidad}
+                    {" — S/ "}
+                    {(
+                      d.cantidad *
+                      Number(d.precio_unitario)
+                    ).toFixed(2)}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <p className="total">
+              Total receta: S/{" "}
+              {totalReceta(
+                c.detalles_receta
+              ).toFixed(2)}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <section className="seccion">
+        <h2>
+          Veterinaria — {veterinarios.length} veterinarios y {mascotas.length} mascotas
+        </h2>
+
+        <h3>Veterinarios</h3>
+
+        <ul className="lista">
+          {veterinarios.map((v) => (
+            <li key={v.id} className="tarjeta">
+              <strong>{v.nombre}</strong> ({v.colegiatura}) — ingreso: {v.fecha_ingreso}
+            </li>
+          ))}
+        </ul>
+
+        <h3>Mascotas</h3>
+
+        {mascotas.map((m) => (
+          <div key={m.uuid} className="tarjeta">
+            <strong>{m.nombre}</strong> — {m.raza} ({m.especie}) | Dueño: {m.dueno} | {Number(m.peso_kg).toFixed(2)} kg
+          </div>
+        ))}
+      </section>
     </div>
   );
 }
