@@ -1,0 +1,254 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  display: block;
+  min-width: 320px;
+  font-family: system-ui, Arial, sans-serif;
+  background: #f5f7fa;
+  color: #263832;
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.contenedor {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  color: #0b6e4f;
+  margin-bottom: 12px;
+}
+
+h2 {
+  color: #0b6e4f;
+  margin-top: 32px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #0b6e4f;
+}
+
+h3 {
+  color: #145a42;
+}
+
+h4 {
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.subtitulo {
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.lista {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(240px, 1fr)
+  );
+  gap: 16px;
+}
+
+.lista-consultas {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(280px, 1fr)
+  );
+  gap: 16px;
+}
+
+.tarjeta {
+  background: #ffffff;
+  border: 1px solid #dde3ea;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.tarjeta:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.tarjeta strong {
+  color: #0b6e4f;
+}
+
+.agotado {
+  color: #b00020;
+  background: #fee2e2;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.ultimas {
+  color: #b36b00;
+  background: #fff3cd;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 8px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.vacio {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.atendida {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.pendiente {
+  color: #b36b00;
+  font-weight: 600;
+}
+
+.total {
+  color: #0b6e4f;
+  font-size: 17px;
+  font-weight: bold;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+  margin-top: 20px;
+}
+
+.seccion {
+  border-top: 3px solid #0b6e4f;
+  margin-top: 32px;
+  padding-top: 8px;
+}
+
+.inactivo {
+  color: #6b7280;
+  margin-left: 8px;
+}
+
+.seccion .tarjeta {
+  margin-bottom: 12px;
+}
+
+.seccion h3 {
+  margin-top: 25px;
+}
+
+@media (max-width: 768px) {
+  .contenedor {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  h2 {
+    font-size: 21px;
+  }
+
+  .lista,
+  .lista-consultas {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjeta {
+    padding: 15px;
+  }
+
+  .ultimas {
+    margin-top: 8px;
+    margin-left: 0;
+  }
+}
+
+/* ---------- Laboratorio 10: componentes, estado y eventos ---------- */
+.tarjeta-contenedor {
+  background: #ffffff;
+  border: 1px solid #dde3ea;
+  border-left: 5px solid #0b6e4f;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.tarjeta-titulo {
+  margin-top: 0;
+}
+
+.buscador,
+.formulario input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #c8d1da;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.boton {
+  background: #0b6e4f;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.boton:hover:not(:disabled) {
+  background: #095a41;
+}
+
+.boton:disabled {
+  background: #b8c2cc;
+  cursor: not-allowed;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.contador {
+  color: #0b6e4f;
+  font-weight: 600;
+}
+
+.formulario {
+  background: #eef6f2;
+  border: 1px dashed #0b6e4f;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.error {
+  color: #b00020;
+  background: #fee2e2;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 12px 0 0;
+}
