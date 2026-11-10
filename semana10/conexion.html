@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERD Veterinaria · Relaciones Claras</title>
+<style>
+:root{
+  --bg:#07121e; --bg2:#0a1929; --card:#102338; --card2:#0d1d30;
+  --text:#eef7ff; --muted:#8fa9c1; --border:#264563;
+  --cyan:#48d8ff; --green:#4dde9e; --purple:#a982ff;
+  --yellow:#ffd166; --red:#ff7f8f; --shadow:0 18px 44px rgba(0,0,0,.30);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 8% 5%,rgba(72,216,255,.12),transparent 24%),
+    radial-gradient(circle at 92% 4%,rgba(169,130,255,.11),transparent 25%),
+    linear-gradient(180deg,#06101b,#081522 42%,#06111b);
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:30px 30px;
+}
+.page{width:min(1960px,calc(100% - 28px));margin:auto;padding:28px 0 50px}
+.hero{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:18px}
+.eyebrow{
+  display:inline-flex;padding:8px 12px;border-radius:999px;
+  border:1px solid rgba(72,216,255,.22);background:rgba(72,216,255,.08);
+  font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#c8f7ff
+}
+h1{margin:14px 0 9px;font-size:clamp(34px,4vw,60px);line-height:.96;letter-spacing:-.05em}
+.subtitle{margin:0;max-width:930px;color:var(--muted);font-size:14px;line-height:1.7}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(100px,1fr));gap:10px;min-width:360px}
+.stat{
+  padding:15px;border-radius:17px;background:linear-gradient(180deg,#11253b,#0b192a);
+  border:1px solid rgba(143,169,193,.15);box-shadow:var(--shadow)
+}
+.stat b{display:block;font-size:24px}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+.toolbar{
+  position:sticky;top:8px;z-index:100;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  padding:10px;margin:18px 0 14px;border-radius:18px;background:rgba(7,18,30,.84);
+  border:1px solid rgba(143,169,193,.15);backdrop-filter:blur(14px);box-shadow:0 12px 34px rgba(0,0,0,.22)
+}
+.toolbar button,.toolbar input{
+  min-height:40px;border-radius:11px;border:1px solid rgba(143,169,193,.14);
+  background:#0d2034;color:#eaf6ff
+}
+.toolbar button{padding:0 13px;font-weight:800;cursor:pointer;transition:.18s}
+.toolbar button:hover,.toolbar button.active{background:#173755;border-color:rgba(72,216,255,.35)}
+.toolbar input{margin-left:auto;min-width:280px;padding:0 14px;outline:none}
+
+.tip{
+  display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:10px 13px;border-radius:14px;
+  color:#b6c9db;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055);font-size:12px
+}
+.tip strong{color:#fff}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+.board-wrap{
+  overflow:auto;border-radius:24px;border:1px solid rgba(143,169,193,.14);
+  background:linear-gradient(180deg,rgba(9,22,37,.94),rgba(7,17,29,.99));box-shadow:var(--shadow)
+}
+#board{position:relative;width:1900px;height:1500px;transform-origin:top left}
+#connections{position:absolute;inset:0;width:1900px;height:1500px;z-index:2;overflow:visible;pointer-events:auto}
+
+.zone{
+  position:absolute;z-index:0;border:1px dashed rgba(255,255,255,.045);border-radius:26px;
+  background:rgba(255,255,255,.012)
+}
+.zone span{
+  position:absolute;left:16px;top:-12px;padding:5px 9px;border-radius:999px;
+  background:#0b1b2c;border:1px solid rgba(255,255,255,.05);
+  color:#55728d;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.13em
+}
+
+.entity{
+  position:absolute;z-index:4;width:276px;border-radius:18px;overflow:hidden;cursor:pointer;
+  background:linear-gradient(180deg,rgba(18,39,62,.99),rgba(10,24,40,.99));
+  border:1px solid rgba(145,177,210,.17);box-shadow:0 16px 34px rgba(0,0,0,.28);
+  transition:.18s ease
+}
+.entity:hover{transform:translateY(-2px);border-color:rgba(72,216,255,.38)}
+.entity.selected{outline:3px solid var(--yellow);outline-offset:4px;box-shadow:0 0 0 8px rgba(255,209,102,.06),0 20px 42px rgba(0,0,0,.35)}
+.entity.related{outline:2px solid rgba(72,216,255,.55);outline-offset:3px}
+.entity.dim{opacity:.18;filter:saturate(.45)}
+.entity.hit{outline:2px solid var(--cyan);outline-offset:3px}
+.entity.central{border-color:rgba(255,209,102,.3)}
+
+.head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px 11px;
+  border-bottom:1px solid rgba(255,255,255,.07);background:linear-gradient(90deg,rgba(72,216,255,.09),transparent 72%)
+}
+.head h3{margin:0;font-size:14px}
+.badge{
+  padding:5px 7px;border-radius:999px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;
+  border:1px solid rgba(255,255,255,.11);color:#cfe0ef;white-space:nowrap
+}
+.base{background:rgba(72,216,255,.08);color:#c9f8ff}
+.core{background:rgba(255,209,102,.1);color:#ffe7aa}
+.child{background:rgba(169,130,255,.1);color:#e3d4ff}
+.bridge{background:rgba(77,222,158,.1);color:#c9ffe4}
+.audit{background:rgba(255,127,143,.1);color:#ffd3d9}
+
+.fields{padding:7px 0}
+.field{
+  display:grid;grid-template-columns:53px 1fr auto;gap:7px;align-items:center;
+  padding:5px 12px;border-bottom:1px solid rgba(255,255,255,.035);font-size:10.8px
+}
+.field:last-child{border-bottom:0}
+.type{font-size:8px;color:#718ba4;font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+.name strong{color:#fff}.keys{display:flex;gap:3px}
+.key{
+  display:inline-flex;align-items:center;justify-content:center;height:18px;min-width:22px;padding:0 5px;
+  border-radius:6px;font-size:7px;font-weight:900
+}
+.kpk{background:rgba(255,209,102,.12);color:#ffe39e}
+.kfk{background:rgba(72,216,255,.11);color:#c5f6ff}
+.kuq{background:rgba(169,130,255,.12);color:#e3d3ff}
+.km2m{background:rgba(77,222,158,.11);color:#caffdf}
+.ko2o{background:rgba(255,127,143,.11);color:#ffd1d8}
+.foot{padding:8px 12px 10px;font-size:9px;color:#7892aa;border-top:1px solid rgba(255,255,255,.05);line-height:1.4}
+
+.side{display:flex;flex-direction:column;gap:14px}
+.panel{
+  padding:18px;border-radius:21px;background:linear-gradient(180deg,#0f2135,#091827);
+  border:1px solid rgba(143,169,193,.14);box-shadow:var(--shadow)
+}
+.panel h3{margin:0 0 12px;font-size:15px}
+.info{
+  min-height:180px;
+  padding:16px;
+  border-radius:18px;
+  background:
+    linear-gradient(180deg,rgba(72,216,255,.045),rgba(255,255,255,.02));
+  border:1px solid rgba(72,216,255,.13);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03)
+}
+.info h4{margin:0 0 9px;font-size:15px}
+.info p{margin:0 0 7px;color:var(--muted);font-size:12px;line-height:1.5}
+.info b{color:#fff}
+.rel-list{display:flex;flex-direction:column;gap:9px}
+.rel-card{
+  padding:11px 12px;border-radius:13px;background:rgba(255,255,255,.023);
+  border:1px solid rgba(255,255,255,.05)
+}
+.rel-card b{display:block;font-size:12px;margin-bottom:3px}
+.rel-card span{display:block;font-size:11px;color:var(--muted);line-height:1.45}
+
+.rel-group{cursor:pointer;transition:.16s;opacity:0;pointer-events:none}
+.rel-group .rel-line{transition:.16s;stroke-opacity:.9}
+.rel-group .hit{stroke:transparent;stroke-width:20}
+.rel-group.visible{opacity:1;pointer-events:auto}.rel-group:hover .rel-line,.rel-group.active .rel-line{stroke-width:4!important;stroke-opacity:1!important}
+.rel-group.dim{opacity:0!important;pointer-events:none!important}
+.rel-label{pointer-events:none;opacity:0}
+.rel-label rect{
+  fill:#081624;stroke:rgba(255,255,255,.16);stroke-width:1;
+  rx:9;ry:9
+}
+.rel-label text{fill:#f4f9ff;font-size:10px;font-weight:900}
+.rel-label .sub{fill:#8fa9c1;font-size:8px;font-weight:800}
+
+.entity-relation-box{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.entity-relation-item{
+  padding:12px 13px;
+  border-radius:14px;
+  background:rgba(255,255,255,.028);
+  border:1px solid rgba(255,255,255,.06);
+}
+.entity-relation-item .route{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  font-size:12px;
+  font-weight:900;
+  color:#fff;
+  margin-bottom:6px;
+}
+.entity-relation-item .pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:44px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(72,216,255,.1);
+  border:1px solid rgba(72,216,255,.18);
+  color:#c7f7ff;
+  font-size:10px;
+  font-weight:900;
+}
+.entity-relation-item .desc{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+
+@media(max-width:1250px){
+  .hero{flex-direction:column;align-items:flex-start}.stats{min-width:0;width:100%}
+  .layout{grid-template-columns:1fr}.toolbar input{margin-left:0;flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <div>
+      <span class="eyebrow">ERD · relaciones fáciles de leer</span>
+      <h1>Base de Datos Veterinaria</h1>
+      <p class="subtitle">
+        Diagrama relacional con conexiones simplificadas. Las cardinalidades ya no están pegadas a las cajas:
+        cada línea tiene una etiqueta central clara como <b>1 a muchos · 1:N</b>.
+      </p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>16</b><span>Entidades</span></div>
+      <div class="stat"><b>98</b><span>Atributos</span></div>
+      <div class="stat"><b>17</b><span>Conexiones</span></div>
+    </div>
+  </header>
+
+  <nav class="toolbar">
+    <button class="active" data-filter="all">Todo</button>
+    <button data-filter="catalog">Catálogos</button>
+    <button data-filter="people">Personas</button>
+    <button data-filter="pets">Mascotas</button>
+    <button data-filter="medical">Clínica</button>
+    <button data-filter="audit">Auditoría</button>
+    <button id="showAll">Ocultar conexiones</button>
+    <button id="zoomOut">−</button>
+    <button id="zoomReset">100%</button>
+    <button id="zoomIn">+</button>
+    <input id="search" type="search" placeholder="Buscar tabla o atributo...">
+  </nav>
+
+  <div class="tip">
+    <strong>Cómo usarlo:</strong> al inicio no se muestran líneas. Haz clic en una entidad y verás únicamente sus conexiones, destino y cardinalidad.
+  </div>
+
+  <div class="layout">
+    <section class="board-wrap">
+      <div id="board">
+        <svg id="connections"></svg>
+
+        <div class="zone" style="left:20px;top:28px;width:300px;height:1240px"><span>Catálogos</span></div>
+        <div class="zone" style="left:350px;top:28px;width:300px;height:1010px"><span>Personas</span></div>
+        <div class="zone" style="left:680px;top:225px;width:300px;height:915px"><span>Mascotas</span></div>
+        <div class="zone" style="left:1010px;top:28px;width:300px;height:1160px"><span>Clínica</span></div>
+        <div class="zone" style="left:1340px;top:350px;width:300px;height:760px"><span>Puentes</span></div>
+        <div class="zone" style="left:1670px;top:28px;width:205px;height:1240px"><span>Auditoría</span></div>
+
+        <article class="entity" id="especie" data-group="catalog" style="left:32px;top:78px">
+          <div class="head"><h3>Especie</h3><span class="badge base">Catálogo</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">nombre</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="raza" data-group="catalog" style="left:32px;top:245px">
+          <div class="head"><h3>Raza</h3><span class="badge base">Catálogo</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">nombre</span><span></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>especie_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">text</span><span class="name">descripcion</span><span></span></div>
+          </div>
+          <div class="foot">UNIQUE (nombre, especie)</div>
+        </article>
+
+        <article class="entity" id="especialidad" data-group="catalog" style="left:32px;top:570px">
+          <div class="head"><h3>Especialidad</h3><span class="badge base">Catálogo</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">nombre</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">text</span><span class="name">descripcion</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="medicamento" data-group="catalog" style="left:32px;top:845px">
+          <div class="head"><h3>Medicamento</h3><span class="badge base">Inventario</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">nombre</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">text</span><span class="name">descripcion</span><span></span></div>
+            <div class="field"><span class="type">uint</span><span class="name">stock</span><span></span></div>
+            <div class="field"><span class="type">decimal</span><span class="name">precio_unitario</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="persona" data-group="people" style="left:362px;top:78px">
+          <div class="head"><h3>Persona</h3><span class="badge base">Base</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">nombre</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">telefono</span><span></span></div>
+            <div class="field"><span class="type">email</span><span class="name">correo</span><span></span></div>
+            <div class="field"><span class="type">bool</span><span class="name">activo</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="dueno" data-group="people" style="left:362px;top:365px">
+          <div class="head"><h3>Dueño</h3><span class="badge child">Hereda</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">o2o</span><span class="name"><strong>persona_ptr</strong></span><span class="keys"><b class="key kpk">PK</b><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">dni</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">direccion</span><span></span></div>
+            <div class="field"><span class="type">datetime</span><span class="name">fecha_registro</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="veterinario" data-group="people" style="left:362px;top:650px">
+          <div class="head"><h3>Veterinario</h3><span class="badge child">Hereda</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">o2o</span><span class="name"><strong>persona_ptr</strong></span><span class="keys"><b class="key kpk">PK</b><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">colegiatura</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">date</span><span class="name">fecha_ingreso</span><span></span></div>
+            <div class="field"><span class="type">m2m</span><span class="name">especialidades</span><span class="keys"><b class="key km2m">M:N</b></span></div>
+          </div>
+        </article>
+
+        <article class="entity central" id="mascota" data-group="pets" style="left:692px;top:330px">
+          <div class="head"><h3>Mascota</h3><span class="badge core">Central</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">nombre</span><span></span></div>
+            <div class="field"><span class="type">date</span><span class="name">fecha_nacimiento</span><span></span></div>
+            <div class="field"><span class="type">char</span><span class="name">sexo</span><span></span></div>
+            <div class="field"><span class="type">decimal</span><span class="name">peso_kg</span><span></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>dueno_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>raza_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">datetime</span><span class="name">fecha_registro</span><span></span></div>
+            <div class="field"><span class="type">bool</span><span class="name">activo</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="ficha" data-group="pets" style="left:692px;top:840px">
+          <div class="head"><h3>FichaClinica</h3><span class="badge bridge">1 a 1</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>mascota_id</strong></span><span class="keys"><b class="key ko2o">O2O</b><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">text</span><span class="name">alergias</span><span></span></div>
+            <div class="field"><span class="type">text</span><span class="name">condiciones_cronicas</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">seguro_veterinario</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">contacto_emergencia</span><span></span></div>
+            <div class="field"><span class="type">text</span><span class="name">observaciones</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="atencion" data-group="medical" style="left:1022px;top:92px">
+          <div class="head"><h3>Atencion</h3><span class="badge base">Base clínica</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>mascota_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>veterinario_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">datetime</span><span class="name">fecha</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">tipo</span><span></span></div>
+            <div class="field"><span class="type">datetime</span><span class="name">fecha_registro</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="consulta" data-group="medical" style="left:1022px;top:465px">
+          <div class="head"><h3>Consulta</h3><span class="badge child">Hereda</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">o2o</span><span class="name"><strong>atencion_ptr</strong></span><span class="keys"><b class="key kpk">PK</b><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">motivo</span><span></span></div>
+            <div class="field"><span class="type">text</span><span class="name">diagnostico</span><span></span></div>
+            <div class="field"><span class="type">text</span><span class="name">tratamiento</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">estado</span><span></span></div>
+            <div class="field"><span class="type">decimal</span><span class="name">costo</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="vacunacion" data-group="medical" style="left:1022px;top:850px">
+          <div class="head"><h3>Vacunacion</h3><span class="badge child">Hereda</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">o2o</span><span class="name"><strong>atencion_ptr</strong></span><span class="keys"><b class="key kpk">PK</b><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">nombre_vacuna</span><span></span></div>
+            <div class="field"><span class="type">date</span><span class="name">proxima_dosis</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">lote</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="detalle" data-group="medical" style="left:1352px;top:485px">
+          <div class="head"><h3>DetalleReceta</h3><span class="badge bridge">Puente</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>consulta_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>medicamento_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">int</span><span class="name">cantidad</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">dosis</span><span></span></div>
+            <div class="field"><span class="type">text</span><span class="name">indicaciones</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="seguimiento" data-group="medical" style="left:1352px;top:900px">
+          <div class="head"><h3>SeguimientoClinico</h3><span class="badge bridge">Tabla puente</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">uuid</span><span class="name">uuid</span><span class="keys"><b class="key kuq">UQ</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>mascota_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">bigint</span><span class="name"><strong>veterinario_id</strong></span><span class="keys"><b class="key kfk">FK</b></span></div>
+            <div class="field"><span class="type">date</span><span class="name">fecha_asignacion</span><span></span></div>
+            <div class="field"><span class="type">varchar</span><span class="name">rol</span><span></span></div>
+            <div class="field"><span class="type">bool</span><span class="name">activo</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="auditAtencion" data-group="audit" style="left:1680px;top:150px;width:175px">
+          <div class="head"><h3>AuditoriaAtencion</h3><span class="badge audit">Histórico</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">id</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">int</span><span class="name">atencion_id</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">tipo</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">mascota_nombre</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">dueno_nombre</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">dueno_dni</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">accion</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">estado_anterior</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">estado_nuevo</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">usuario</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">detalle</span><span></span></div>
+            <div class="field"><span class="type">dt</span><span class="name">fecha_accion</span><span></span></div>
+          </div>
+        </article>
+
+        <article class="entity" id="auditMascota" data-group="audit" style="left:1680px;top:900px;width:175px">
+          <div class="head"><h3>AuditoriaMascota</h3><span class="badge audit">Histórico</span></div>
+          <div class="fields">
+            <div class="field"><span class="type">id</span><span class="name"><strong>id</strong></span><span class="keys"><b class="key kpk">PK</b></span></div>
+            <div class="field"><span class="type">int</span><span class="name">mascota_id</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">mascota_nombre</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">dueno_nombre</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">dueno_dni</span><span></span></div>
+            <div class="field"><span class="type">txt</span><span class="name">accion</span><span></span></div>
+            <div class="field"><span class="type">dt</span><span class="name">fecha_accion</span><span></span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h3>Relación seleccionada</h3>
+        <div class="info" id="info">
+          <h4>Selecciona una línea o entidad</h4>
+          <p>Se resaltará la conexión y aquí aparecerá la explicación.</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Cómo leer las relaciones</h3>
+        <div class="rel-list">
+          <div class="rel-card"><b>1 a muchos · 1:N</b><span>Un registro del lado “1” puede relacionarse con varios del otro lado.</span></div>
+          <div class="rel-card"><b>1 a 1 · 1:1</b><span>Cada registro tiene como máximo un registro relacionado.</span></div>
+          <div class="rel-card"><b>Muchos a muchos · N:M</b><span>Varios registros de ambos lados se relacionan entre sí.</span></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script>
+const rels = [
+  {id:'r1',a:'especie',b:'raza',type:'1:N',label:'1 a muchos',desc:'Una especie puede tener muchas razas.',color:'#48d8ff'},
+  {id:'r2',a:'raza',b:'mascota',type:'1:N',label:'1 a muchos',desc:'Una raza puede tener muchas mascotas.',color:'#48d8ff'},
+  {id:'r3',a:'persona',b:'dueno',type:'1:1',label:'1 a 1',desc:'Dueño hereda de Persona mediante relación uno a uno.',color:'#a982ff',dash:'8 6'},
+  {id:'r4',a:'persona',b:'veterinario',type:'1:1',label:'1 a 1',desc:'Veterinario hereda de Persona mediante relación uno a uno.',color:'#a982ff',dash:'8 6'},
+  {id:'r5',a:'dueno',b:'mascota',type:'1:N',label:'1 a muchos',desc:'Un dueño puede tener muchas mascotas.',color:'#48d8ff'},
+  {id:'r6',a:'mascota',b:'ficha',type:'1:1',label:'1 a 1',desc:'Cada mascota tiene una sola ficha clínica.',color:'#ffd166'},
+  {id:'r7',a:'mascota',b:'atencion',type:'1:N',label:'1 a muchos',desc:'Una mascota puede tener muchas atenciones.',color:'#48d8ff'},
+  {id:'r8',a:'veterinario',b:'atencion',type:'1:N',label:'1 a muchos',desc:'Un veterinario puede registrar muchas atenciones.',color:'#48d8ff'},
+  {id:'r9',a:'atencion',b:'consulta',type:'1:1',label:'1 a 1',desc:'Consulta es un subtipo de Atención.',color:'#a982ff',dash:'8 6'},
+  {id:'r10',a:'atencion',b:'vacunacion',type:'1:1',label:'1 a 1',desc:'Vacunación es un subtipo de Atención.',color:'#a982ff',dash:'8 6'},
+  {id:'r11',a:'consulta',b:'detalle',type:'1:N',label:'1 a muchos',desc:'Una consulta puede tener muchos detalles de receta.',color:'#48d8ff'},
+  {id:'r12',a:'medicamento',b:'detalle',type:'1:N',label:'1 a muchos',desc:'Un medicamento puede aparecer en muchos detalles de receta.',color:'#48d8ff'},
+  {id:'r13',a:'mascota',b:'seguimiento',type:'1:N',label:'1 a muchos',desc:'Una mascota puede tener varios seguimientos clínicos.',color:'#48d8ff'},
+  {id:'r14',a:'veterinario',b:'seguimiento',type:'1:N',label:'1 a muchos',desc:'Un veterinario puede tener varios seguimientos clínicos.',color:'#48d8ff'},
+  {id:'r15',a:'veterinario',b:'especialidad',type:'N:M',label:'muchos a muchos',desc:'Un veterinario puede tener varias especialidades y viceversa.',color:'#4dde9e',dash:'6 5'},
+  {id:'r16',a:'atencion',b:'auditAtencion',type:'histórico',label:'auditoría',desc:'AuditoriaAtencion guarda un registro histórico por ID.',color:'#ff7f8f',dash:'3 7'},
+  {id:'r17',a:'mascota',b:'auditMascota',type:'histórico',label:'auditoría',desc:'AuditoriaMascota guarda altas y bajas históricas por ID.',color:'#ff7f8f',dash:'3 7'}
+];
+
+function boardRect(){return document.getElementById('board').getBoundingClientRect()}
+function box(id){
+  const r=document.getElementById(id).getBoundingClientRect(), b=boardRect();
+  return {x:r.left-b.left,y:r.top-b.top,w:r.width,h:r.height,cx:r.left-b.left+r.width/2,cy:r.top-b.top+r.height/2}
+}
+function edge(p,q){
+  const dx=q.cx-p.cx,dy=q.cy-p.cy;
+  if(Math.abs(dx)>Math.abs(dy)){
+    return {x:p.cx+(dx>0?p.w/2:-p.w/2),y:p.cy};
+  }
+  return {x:p.cx,y:p.cy+(dy>0?p.h/2:-p.h/2)};
+}
+function pathBetween(a,b){
+  const A=box(a),B=box(b),p1=edge(A,B),p2=edge(B,A);
+  const dx=Math.abs(p2.x-p1.x),dy=Math.abs(p2.y-p1.y);
+  let d,mid;
+  if(dx>dy){
+    const mx=(p1.x+p2.x)/2;
+    d=`M ${p1.x} ${p1.y} C ${mx} ${p1.y}, ${mx} ${p2.y}, ${p2.x} ${p2.y}`;
+    mid={x:mx,y:(p1.y+p2.y)/2};
+  }else{
+    const my=(p1.y+p2.y)/2;
+    d=`M ${p1.x} ${p1.y} C ${p1.x} ${my}, ${p2.x} ${my}, ${p2.x} ${p2.y}`;
+    mid={x:(p1.x+p2.x)/2,y:my};
+  }
+  return {d,mid};
+}
+function svgEl(name){return document.createElementNS('http://www.w3.org/2000/svg',name)}
+function addLabel(svg,x,y,rel){
+  const g=svgEl('g');g.setAttribute('class','rel-label');g.dataset.rel=rel.id;g.style.opacity='0';
+  const width=rel.type==='histórico'?118:(rel.label==='muchos a muchos'?142:132);
+  const rect=svgEl('rect');
+  rect.setAttribute('x',x-width/2);rect.setAttribute('y',y-21);rect.setAttribute('width',width);rect.setAttribute('height',38);
+  const t1=svgEl('text');t1.setAttribute('x',x);t1.setAttribute('y',y-6);t1.setAttribute('text-anchor','middle');t1.textContent=rel.label;
+  const t2=svgEl('text');t2.setAttribute('class','sub');t2.setAttribute('x',x);t2.setAttribute('y',y+8);t2.setAttribute('text-anchor','middle');t2.textContent=rel.type;
+  g.append(rect,t1,t2);svg.appendChild(g);
+}
+function draw(){
+  const svg=document.getElementById('connections');svg.innerHTML='';
+  rels.forEach(rel=>{
+    const {d,mid}=pathBetween(rel.a,rel.b);
+    const g=svgEl('g');g.setAttribute('class','rel-group');g.id=rel.id;
+    const hit=svgEl('path');hit.setAttribute('d',d);hit.setAttribute('fill','none');hit.setAttribute('class','hit');
+    const p=svgEl('path');p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke',rel.color);
+    p.setAttribute('stroke-width','2.6');p.setAttribute('stroke-linecap','round');p.setAttribute('class','rel-line');
+    if(rel.dash)p.setAttribute('stroke-dasharray',rel.dash);
+    g.append(hit,p);svg.appendChild(g);addLabel(svg,mid.x,mid.y,rel);
+    g.addEventListener('click',()=>focusRelation(rel.id));
+  });
+}
+let selectedEntity=null;
+
+function hideAllConnections(){
+  selectedEntity=null;
+  document.querySelectorAll('.entity').forEach(e=>e.classList.remove('selected','related','dim'));
+  document.querySelectorAll('.rel-group').forEach(g=>{
+    g.classList.remove('active','visible','dim');
+  });
+  document.querySelectorAll('.rel-label').forEach(g=>g.style.opacity='0');
+  info(null);
+}
+
+function focusRelation(id){
+  const rel=rels.find(r=>r.id===id);
+  if(!rel)return;
+
+  document.querySelectorAll('.rel-group').forEach(g=>{
+    const isTarget=g.id===id;
+    g.classList.toggle('visible',isTarget);
+    g.classList.toggle('active',isTarget);
+  });
+
+  document.querySelectorAll('.rel-label').forEach(g=>{
+    g.style.opacity=g.dataset.rel===id?'1':'0';
+  });
+
+  document.querySelectorAll('.entity').forEach(e=>{
+    const connected=e.id===rel.a||e.id===rel.b;
+    e.classList.toggle('related',connected);
+    e.classList.toggle('dim',!connected);
+    e.classList.remove('selected');
+  });
+
+  info(rel);
+}
+
+function focusEntity(id){
+  if(selectedEntity===id){
+    hideAllConnections();
+    return;
+  }
+
+  selectedEntity=id;
+  const related=rels.filter(r=>r.a===id||r.b===id);
+  const relIds=new Set(related.map(r=>r.id));
+  const ids=new Set([id]);
+
+  related.forEach(r=>{
+    ids.add(r.a);
+    ids.add(r.b);
+  });
+
+  document.querySelectorAll('.entity').forEach(e=>{
+    e.classList.toggle('selected',e.id===id);
+    e.classList.toggle('related',e.id!==id&&ids.has(e.id));
+    e.classList.toggle('dim',!ids.has(e.id));
+  });
+
+  document.querySelectorAll('.rel-group').forEach(g=>{
+    const visible=relIds.has(g.id);
+    g.classList.toggle('visible',visible);
+    g.classList.toggle('active',visible);
+    g.classList.remove('dim');
+  });
+
+  document.querySelectorAll('.rel-label').forEach(g=>{
+    g.style.opacity=relIds.has(g.dataset.rel)?'1':'0';
+  });
+
+  const name=document.querySelector('#'+id+' h3').textContent;
+  const lines = related.map(r=>{
+    const other = r.a===id ? r.b : r.a;
+    const otherName = document.querySelector('#'+other+' h3').textContent;
+    const direction = r.a===id ? `${name} → ${otherName}` : `${otherName} → ${name}`;
+    return `
+      <div class="entity-relation-item">
+        <div class="route">
+          <span>${direction}</span>
+          <span class="pill">${r.type}</span>
+        </div>
+        <div class="desc"><b>${r.label}</b> — ${r.desc}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('info').innerHTML=
+    `<h4>${name}</h4>
+     <p><b>${related.length} relación(es) encontradas</b></p>
+     <p>Estas son las conexiones directas de esta entidad:</p>
+     <div class="entity-relation-box">${lines}</div>`;
+}
+
+document.querySelectorAll('.entity').forEach(e=>e.addEventListener('click',()=>focusEntity(e.id)));
+window.addEventListener('load',()=>{ draw(); hideAllConnections(); });
+window.addEventListener('resize',()=>{ draw(); if(selectedEntity) focusEntity(selectedEntity); else hideAllConnections(); });
+document.getElementById('showAll').onclick=hideAllConnections;
+
+document.querySelectorAll('[data-filter]').forEach(btn=>{
+  btn.onclick=()=>{
+    hideAllConnections();document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+    const f=btn.dataset.filter;
+    document.querySelectorAll('.entity').forEach(e=>e.classList.toggle('dim',f!=='all'&&e.dataset.group!==f));
+  };
+});
+document.getElementById('search').oninput=e=>{
+  hideAllConnections();const q=e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.entity').forEach(card=>{
+    const ok=!q||card.innerText.toLowerCase().includes(q);card.classList.toggle('hit',q&&ok);card.classList.toggle('dim',q&&!ok);
+  });
+};
+let zoom=1;
+function applyZoom(){document.getElementById('board').style.transform=`scale(${zoom})`;document.getElementById('zoomReset').textContent=Math.round(zoom*100)+'%'}
+document.getElementById('zoomIn').onclick=()=>{zoom=Math.min(1.35,zoom+.1);applyZoom()}
+document.getElementById('zoomOut').onclick=()=>{zoom=Math.max(.7,zoom-.1);applyZoom()}
+document.getElementById('zoomReset').onclick=()=>{zoom=1;applyZoom()}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}Eliminar raza{% endblock %}
+{% block contenido %}
+
+{% url 'listar_razas' as url_cancelar %}
+{% include 'vetcar/_confirmar_eliminar.html' with pregunta="¿Eliminar la raza "|add:raza.nombre|add:"?" cantidad_relacionados=raza.mascotas.count sujeto="Esta raza" nombre_relacionados="mascota(s) registrada(s) con esta raza" url_cancelar=url_cancelar %}
+
+{% endblock %}

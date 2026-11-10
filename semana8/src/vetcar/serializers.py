@@ -86,7 +86,8 @@ class SeguimientoSerializer(serializers.ModelSerializer):
 
 
 class MascotaSerializer(serializers.ModelSerializer):
-    dueno = serializers.CharField(source='dueno.nombre', read_only=True)
+    dueno = serializers.CharField(source='dueno.nombre', read_only=Tr
+                                  ue)
     raza = serializers.CharField(source='raza.nombre', read_only=True)
     especie = serializers.CharField(source='raza.especie.nombre', read_only=True)
     ficha_clinica = FichaClinicaSerializer(read_only=True)
