@@ -1,0 +1,61 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}{% if veterinario %}Editar veterinario{% else %}Nuevo veterinario{% endif %}{% endblock %}
+{% block contenido %}
+
+<div class="mb-4">
+    <h2 class="mb-0">
+        <i class="bi bi-clipboard2-pulse me-2" style="color: var(--clinica-primaria);"></i>
+        {% if veterinario %}Editar veterinario{% else %}Nuevo veterinario{% endif %}
+    </h2>
+    <p class="texto-suave mb-0">
+        {% if veterinario %}Actualiza los datos de {{ veterinario.nombre }}{% else %}Registra un nuevo profesional de la clínica{% endif %}
+    </p>
+</div>
+
+<div class="card-clinica p-4" style="max-width: 640px;">
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+            {% if field.name != 'especialidades' and field.name != 'activo' %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label fw-semibold">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">{{ form.especialidades.label }}</label>
+            <div class="p-3 rounded-3" style="background-color: var(--clinica-fondo); border: 1px solid var(--clinica-borde);">
+                {% for checkbox in form.especialidades %}
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                    </div>
+                {% empty %}
+                    <span class="texto-suave">No hay especialidades cargadas todavía.</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-check form-switch mb-4">
+            {{ form.activo }}
+            <label class="form-check-label fw-semibold" for="{{ form.activo.id_for_label }}">Activo</label>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn-clinica">
+                <i class="bi bi-check-lg me-1"></i> Guardar
+            </button>
+            <a href="{% url 'listar_veterinarios' %}" class="btn-clinica-fantasma">
+                <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
