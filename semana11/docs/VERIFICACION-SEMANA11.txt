@@ -1,0 +1,49 @@
+VERIFICACIÓN SEMANA 11 — PARTE 1
+Fecha: 17 de noviembre de 2026
+Entorno: Node.js 24.22.1; npm 11.9.0; React 19.3.1; Vite 8.3.4.
+
+$ npm run lint
+> frontend@0.0.0 lint
+> oxlint
+Código de salida: 0
+
+$ npm run build
+> frontend@0.0.0 build
+> vite build
+
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 37 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.48 kB │ gzip:  0.31 kB
+dist/assets/index-CMg3IhJD.css    9.67 kB │ gzip:  2.81 kB
+dist/assets/index-Bkikn9iw.js   235.97 kB │ gzip: 72.96 kB
+
+✓ built in 105ms
+Código de salida: 0
+
+FUNCIONAMIENTO
+Comprobación de React en un DOM simulado (JSDOM), con compilación de desarrollo y StrictMode.
+Esta comprobación cubre eventos, estado, efectos y limpieza; no es una inspección visual en un navegador gráfico.
+
+OK: Cinco productos, precios, stock agotado y carrito inicialmente vacío
+OK: Dos Capuchinos + un Café: dos líneas, 3 unidades, S/ 24.50 y título actualizado
+OK: Búsquedas ca/zzz, mayúsculas y espacios; carrito conservado y efecto no repetido al buscar
+OK: Quitar elimina la línea completa con filter; Vaciar deja arreglo vacío y total cero
+OK: Aviso de 3 segundos; repetir el mismo producto reinicia el temporizador y no duplica el clic
+OK: Navegación a VetCar, limpieza del temporizador y título, reinicio al volver
+OK: StrictMode activo, logs de eventos/efectos y ninguna advertencia o error de React en el DOM simulado
+
+EVENTO INCORRECTO TEMPORAL
+Comprobado en un ejemplo aislado; el código entregado conserva el evento correcto.
+1. onClick={onAgregar(producto)} ejecuta la función durante el render, antes del clic.
+2. Si solo imprime en consola, no hay error de React y el clic no ejecuta de nuevo la función.
+3. Si modifica el estado del padre durante el render, se observa esta advertencia:
+Cannot update a component (`Practica`) while rendering a different component (`ProductoCard`). To locate the bad setState() call inside `ProductoCard`, follow the stack trace as described in https://react.dev/link/setstate-in-render
+
+INMUTABILIDAD Y CONTENIDO
+Revisión: la práctica no utiliza push() ni splice(); conserva precios como texto.
+No se consumen APIs. Los componentes originales de VetCar y el backend se conservan.
+Se excluyen node_modules, dist, .git, cachés y archivos compilados de Python del ZIP.
+Las evidencias que debes capturar en tu equipo están detalladas en LEEME-SEMANA11.md.

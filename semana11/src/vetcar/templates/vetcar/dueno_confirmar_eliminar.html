@@ -1,0 +1,8 @@
+{% extends 'vetcar/base.html' %}
+{% block titulo %}Eliminar dueño{% endblock %}
+{% block contenido %}
+
+{% url 'listar_duenos' as url_cancelar %}
+{% include 'vetcar/_confirmar_eliminar.html' with pregunta="¿Eliminar a "|add:dueno.nombre|add:"?" cantidad_relacionados=dueno.mascotas.count sujeto="Este dueño" nombre_relacionados="mascota(s) registrada(s)" url_cancelar=url_cancelar %}
+
+{% endblock %}
